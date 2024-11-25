@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+            background-color: #f7f2e9;
+        }
+
+        .main {
+            height: 25%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #d7bb96;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-left: 12px;
+            margin-right: 12px;
+        }
+
+        .title {
+            font-size: 1rem;
+            font-family: monospace;
+            font-weight: 1000;
+            padding: 12px;
+        }
+
+        .options-laptop {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 12px;
+            font-family: monospace;
+            font-weight: 1000;
+            font-size: 16px;
+            padding: 12px;
+        }
+
+        .options-mobile {
+            display: none;
+        }
+
+        .btn {
+            transition: transform 0.25s ease;
+            font-family: monospace;
+            font-weight: 1000;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            cursor: grab;
+        }
+
+        .About-me{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-img{
+            width: 50%;
+            height: auto;
+            
+        }
+        .profile{
+            width: 50%;
+            height: 50%;
+            border-radius: 50%;
+            margin: 24px;
+        }
+
+        .txt-about-me{
+            width: 50%;
+            height: auto;
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: justify;
+            margin-right: 20px;
+        }
+
+
+        @media (max-width:768px) {
+            .options-laptop {
+                display: none;
+            }
+
+            .options-mobile {
+                display: block;
+            }
+
+            .hamburger>img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .section{
+                width: 100%;
+                height : 30%;
+                background-color: #f7f2e9;
+            }
+
+            .side-bar {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                flex-direction: column;
+                gap: 18px;
+                margin-top: 12px;
+
+                position: absolute;
+                right: -100%;
+                top: 0;
+                height: 100%;
+                width: 40%;
+                background-color: #d7bb96;
+                transition: right 0.3s ease;
+                z-index: 1000;
+            }
+
+            .side-bar.active {
+                right: 0;
+            }
+
+            .side-bar.inactive {
+                right : -100%;
+            }
+            
+            .cross-btn > img{
+                width: 50px;
+                height : 50px;
+            }
+
+            .About-me{
+                flex-direction: column;
+            }
+
+            .profile{
+                margin-top: 24px;
+                margin-left: 0px;
+                margin-right: 0px;
+                width: 100%;
+                height : 100%;
+            }
+
+            .txt-about-me{
+                text-align: center;
+                margin-right: 0px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <nav>
+            <div class="title">
+                <h1>Pushkar's PortFolio</h1>
+            </div>
+            <div class="options-laptop">
+                <div class="btn">About me</div>
+                <div class="btn">Projects</div>
+                <div class="btn">Github</div>
+                <div class="btn">Resume</div>
+            </div>
+
+            <div class="options-mobile">
+                <div class="hamburger btn" onclick="ToggleMobileMenu()"><img
+                        src="https://cdn0.iconfinder.com/data/icons/rounded-basics/24/rounded__menu-512.png"></div>
+                <div class="side-bar">
+                    <div class="cross-btn btn" onclick="CloseMobileMenu()"><img src="https://www.freeiconspng.com/thumbs/close-icon/close-icon-47.png"></div>
+                    <div class="btn">About me</div>
+                    <div class="btn">Projects</div>
+                    <div class="btn">Github</div>
+                    <div class="btn">Resume</div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <section class="About-me">
+        <div class="profile-img">
+            <img class="profile img" src="https://media.licdn.com/dms/image/v2/D5603AQE0dwIG0jwNYA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1711640194876?e=1738195200&v=beta&t=6HPFCLn52cZYcDvtWMHmaStWZBLFUNctdW8m2r5KhxQ">
+        </div>
+        <div class="txt-about-me">
+            I am an engineering student currently learning Artificial Intelligence and Machine Learning and building projects in these fields. With a strong interest in robotics, I am exploring how AI and ML can be applied to innovate in the field of robotics.
+            I have also gained substantial experience in web development, and I am currently honing my skills in TensorFlow, Scikit-learn, and ROS. My programming knowledge includes Python, C, and C++. I am eager to apply this knowledge to real-world projects. 
+        </div>
+
+
+    </section>
+    <script>
+        //function to turn on the side menu
+        function ToggleMobileMenu() {
+            const sideBar = document.querySelector('.side-bar');
+            sideBar.classList.add('active'); // Toggle the "active" class
+            sideBar.classList.remove('inactive')
+        }
+
+
+        //function to turn off side menue
+        function CloseMobileMenu() {
+            const sideBar = document.querySelector('.side-bar');
+            sideBar.classList.add('inactive'); // Toggle the "active" class
+            sideBar.classList.remove('active');
+        }
+
+    </script>
+</body>
+
+</html>
