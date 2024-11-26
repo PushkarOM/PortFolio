@@ -10,6 +10,7 @@
             margin: 0px;
             padding: 0px;
             background-color: #f7f2e9;
+            overflow-x: hidden;
         }
 
         .main {
@@ -22,6 +23,8 @@
         }
 
         nav {
+            
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,7 +34,6 @@
         }
 
         .title {
-            font-size: 1rem;
             font-family: monospace;
             font-weight: 1000;
             padding: 12px;
@@ -64,26 +66,27 @@
             cursor: grab;
         }
 
-        .About-me{
+        .About-me {
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .profile-img{
+        .profile-img {
             width: 50%;
             height: auto;
-            
+
         }
-        .profile{
+
+        .profile {
             width: 50%;
             height: 50%;
             border-radius: 50%;
             margin: 24px;
         }
 
-        .txt-about-me{
-            width: 50%;
+        .txt-about-me {
+            width: 500px;
             height: auto;
             font-family: monospace;
             font-weight: 600;
@@ -98,20 +101,21 @@
             align-items: center;
             flex-direction: column;
             gap: 16px;
+
         }
-        
-        .img{
+
+        .img {
             width: 30px;
-            height : 30px;
+            height: 30px;
             transition: transform 0.25s ease;
             margin: 4px;
         }
 
-        .img:hover{
+        .img:hover {
             transform: scale(1.3);
         }
 
-        @media (max-width:768px) {
+        @media (max-width:836px) {
             .options-laptop {
                 display: none;
             }
@@ -125,9 +129,9 @@
                 height: 50px;
             }
 
-            .section{
+            .section {
                 width: 100%;
-                height : 30%;
+                height: 30%;
                 background-color: #f7f2e9;
             }
 
@@ -154,29 +158,30 @@
             }
 
             .side-bar.inactive {
-                right : -100%;
-            }
-            
-            .cross-btn > img{
-                width: 50px;
-                height : 50px;
+                right: -100%;
             }
 
-            .About-me{
+            .cross-btn>img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .About-me {
                 flex-direction: column;
             }
 
-            .profile{
+            .profile {
                 margin-top: 24px;
                 margin-left: 0px;
                 margin-right: 0px;
                 width: 100%;
-                height : 100%;
+                height: 100%;
             }
 
-            .txt-about-me{
+            .txt-about-me {
                 text-align: center;
                 margin-right: 0px;
+                width : 80%;
             }
         }
     </style>
@@ -186,20 +191,21 @@
     <div class="main">
         <nav>
             <div class="title">
-                <h1>Pushkar's PortFolio</h1>
+                <h1>{ title : Pushkar's PortFolio };</h1>
             </div>
             <div class="options-laptop">
-                <div class="btn">About me</div>
-                <div class="btn">Projects</div>
-                <div class="btn">Github</div>
-                <div class="btn">Resume</div>
+                <div class="btn">| About me |</div>
+                <div class="btn">| Projects |</div>
+                <div class="btn">| Github |</div>
+                <div class="btn">| Resume |</div>
             </div>
 
             <div class="options-mobile">
                 <div class="hamburger btn" onclick="ToggleMobileMenu()"><img
                         src="https://cdn0.iconfinder.com/data/icons/rounded-basics/24/rounded__menu-512.png"></div>
                 <div class="side-bar">
-                    <div class="cross-btn btn" onclick="CloseMobileMenu()"><img src="https://www.freeiconspng.com/thumbs/close-icon/close-icon-47.png"></div>
+                    <div class="cross-btn btn" onclick="CloseMobileMenu()"><img
+                            src="https://www.freeiconspng.com/thumbs/close-icon/close-icon-47.png"></div>
                     <div class="btn">About me</div>
                     <div class="btn">Projects</div>
                     <div class="btn">Github</div>
@@ -210,20 +216,29 @@
     </div>
     <section class="About-me">
         <div class="profile-img">
-            <img class="profile" src="https://media.licdn.com/dms/image/v2/D5603AQE0dwIG0jwNYA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1711640194876?e=1738195200&v=beta&t=6HPFCLn52cZYcDvtWMHmaStWZBLFUNctdW8m2r5KhxQ">
+            <img class="profile"
+                src="https://media.licdn.com/dms/image/v2/D5603AQE0dwIG0jwNYA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1711640194876?e=1738195200&v=beta&t=6HPFCLn52cZYcDvtWMHmaStWZBLFUNctdW8m2r5KhxQ">
         </div>
         <div class="txt-about-me">
-            I am an engineering student currently learning Artificial Intelligence and Machine Learning and building projects in these fields. With a strong interest in robotics, I am exploring how AI and ML can be applied to innovate in the field of robotics.
-            I have also gained substantial experience in web development, and I am currently honing my skills in TensorFlow, Scikit-learn, and ROS. My programming knowledge includes Python, C, and C++. I am eager to apply this knowledge to real-world projects. 
+            void About_me(){ <br><br>
+                cout << "I am an engineering student currently learning Artificial Intelligence and Machine Learning and building
+            projects in these fields. With a strong interest in robotics, I am exploring how AI and ML can be applied to
+            innovate in the field of robotics.
+            I have also gained substantial experience in web development, and I am currently honing my skills in
+            TensorFlow, Scikit-learn, and ROS. My programming knowledge includes Python, C, and C++. I am eager to apply
+            this knowledge to real-world projects."<bR><br>
+            };
             <div class="social-btn">
-                <a href="https://www.instagram.com/_om_pushkar_/"><img class="img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1024px-Instagram_icon.png"></a>
-                <a href="https://www.linkedin.com/in/pushkar-chaturvedi-a83778284/"><img class="img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVZ7ih0RMvWGQ4X98WXAZofSI-cGiWSFs-5Q&s"></a>
-                <a href="https://medium.com/@pushkarchaturvedi42"><img class="img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj3FdYljrAQEBNI4jrvig993BaLa6YWrT-fg&s"></a>
-                <a href="https://codeforces.com/profile/om_pushkar"><img class="img" src="https://cdn.iconscout.com/icon/free/png-256/free-code-forces-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-vol-2-pack-logos-icons-3031869.png"></a>
+                <a href="https://www.instagram.com/_om_pushkar_/"><img class="img"
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1024px-Instagram_icon.png"></a>
+                <a href="https://www.linkedin.com/in/pushkar-chaturvedi-a83778284/"><img class="img"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVZ7ih0RMvWGQ4X98WXAZofSI-cGiWSFs-5Q&s"></a>
+                <a href="https://medium.com/@pushkarchaturvedi42"><img class="img"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj3FdYljrAQEBNI4jrvig993BaLa6YWrT-fg&s"></a>
+                <a href="https://codeforces.com/profile/om_pushkar"><img class="img"
+                        src="https://cdn.iconscout.com/icon/free/png-256/free-code-forces-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-vol-2-pack-logos-icons-3031869.png"></a>
             </div>
         </div>
-
-
     </section>
     <script>
         //function to turn on the side menu
