@@ -1,0 +1,10 @@
+{
+  "description": "Create, edit, and collaborate on markdown documents seamlessly, empowering writers and teams to enhance productivity and streamline content creation.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
