@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
-import { WindowProvider } from './contexts/WindowContext'
-import './index.css'
+import App from './app/App'
+import { WindowProvider } from './context/WindowContext'
+import './styles/global.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

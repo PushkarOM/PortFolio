@@ -142,10 +142,15 @@ async function seed() {
     // Seed User
     const userCount = await User.countDocuments();
     if (userCount === 0) {
-      const hashedPassword = await bcrypt.hash('pushkar123', 10);
+      const initialPassword = process.env.ADMIN_INITIAL_PASSWORD;
+      if (!initialPassword) {
+        console.error('✗ ADMIN_INITIAL_PASSWORD environment variable is required to seed the admin user.');
+        process.exit(1);
+      }
+      const hashedPassword = await bcrypt.hash(initialPassword, 10);
       const user = new User({ username: 'admin', password: hashedPassword });
       await user.save();
-      console.log('✓ Default admin user seeded (password: pushkar123).');
+      console.log('✓ Default admin user seeded.');
     } else {
       console.log('Admin user already exists. Skipping user seed.');
     }
