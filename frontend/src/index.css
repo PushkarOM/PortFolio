@@ -147,33 +147,40 @@ html, body, #root {
 
 .window-title-bar {
   background: var(--bg-topbar);
-  padding: 8px 12px;
+  padding: 0 0 0 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   cursor: grab;
   user-select: none;
   border-bottom: 1px solid rgba(255,255,255,0.05);
+  height: 32px;
 }
 
-.window-dot {
-  width: 11px; height: 11px;
-  border-radius: 50%;
+.window-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 100%;
   cursor: pointer;
-  transition: filter 0.15s;
+  color: var(--text-topbar);
+  background: transparent;
+  border: none;
+  font-family: sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
 }
-.window-dot:hover { filter: brightness(1.2); }
-.window-dot.red { background: #FF5F57; }
-.window-dot.yellow { background: #FFBD2E; }
-.window-dot.green { background: #28CA42; }
+.window-control:hover { background: rgba(255, 255, 255, 0.1); }
+.window-control.close:hover { background: #E81123; color: white; }
 
 .window-title {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-topbar);
-  opacity: 0.7;
-  flex: 1;
-  text-align: center;
+  opacity: 0.8;
   letter-spacing: 0.02em;
 }
 

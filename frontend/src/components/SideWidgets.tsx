@@ -7,17 +7,17 @@ function WidgetShell({ title, children, accent = '#3B82F6' }: {
   accent?: string
 }) {
   return (
-    <div className="window" style={{ overflow: 'hidden' }}>
+    <div className="window" style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
       <div style={{
         background: 'var(--bg-topbar)',
-        padding: '5px 10px',
-        display: 'flex', alignItems: 'center', gap: 7,
+        padding: '6px 12px',
+        display: 'flex', alignItems: 'center', gap: 8,
         borderBottom: '1px solid rgba(255,255,255,0.05)',
       }}>
-        <div style={{ width: 7, height: 7, borderRadius: '50%', background: accent }} />
-        <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(148,163,184,0.7)', flex: 1 }}>{title}</span>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: accent }} />
+        <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'rgba(148,163,184,0.7)', flex: 1 }}>{title}</span>
       </div>
-      <div style={{ padding: '10px 12px', background: 'var(--bg-window)' }}>
+      <div style={{ padding: '14px 16px', background: 'var(--bg-window)' }}>
         {children}
       </div>
     </div>
@@ -77,8 +77,13 @@ function Neofetch() {
 function NowBuilding() {
   const [status, setStatus] = useState('')
 
-  const loadStatus = () => {
-    setStatus(portfolioApi.getStatusText())
+  const loadStatus = async () => {
+    try {
+      const text = await portfolioApi.getStatusText()
+      setStatus(text)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
@@ -114,15 +119,15 @@ function GitHubStats() {
   ]
   return (
     <WidgetShell title="github_stats.json" accent="#F59E0B">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {stats.map(s => (
           <div key={s.label} style={{
             background: 'var(--bg-window-alt)',
             border: '1px solid var(--border-light)',
-            borderRadius: 5, padding: '6px 8px',
+            borderRadius: 6, padding: '8px 10px',
           }}>
-            <div style={{ fontSize: 15, fontFamily: 'var(--font-display)', fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 4 }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -153,41 +158,50 @@ function CurrentlyLearning() {
   )
 }
 
-function CoffeeCounter() {
+function TeaCounter() {
   const [count, setCount] = useState(3)
 
-  const loadCoffee = () => {
-    setCount(portfolioApi.getCoffeeCount())
+  const loadTea = async () => {
+    try {
+      const val = await portfolioApi.getCoffeeCount()
+      setCount(val)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
-    loadCoffee()
-    window.addEventListener('pushkaros-data-change', loadCoffee)
-    return () => window.removeEventListener('pushkaros-data-change', loadCoffee)
+    loadTea()
+    window.addEventListener('pushkaros-data-change', loadTea)
+    return () => window.removeEventListener('pushkaros-data-change', loadTea)
   }, [])
 
-  const handleBrew = () => {
+  const handleBrew = async () => {
     const next = count + 1
-    portfolioApi.saveCoffeeCount(next)
-    setCount(next)
+    try {
+      await portfolioApi.saveCoffeeCount(next)
+      setCount(next)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return (
-    <WidgetShell title="coffee.sh" accent="#F59E0B">
+    <WidgetShell title="tea.sh" accent="#10B981">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 22, fontFamily: 'var(--font-display)', fontWeight: 700, color: '#F59E0B', lineHeight: 1 }}>
-            {count} ☕
+          <div style={{ fontSize: 22, fontFamily: 'var(--font-display)', fontWeight: 700, color: '#10B981', lineHeight: 1 }}>
+            {count} 🍵
           </div>
           <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 2 }}>cups today</div>
         </div>
         <button
           onClick={handleBrew}
           style={{
-            background: 'rgba(245,158,11,0.15)',
-            border: '1px solid rgba(245,158,11,0.3)',
+            background: 'rgba(16, 185, 129, 0.15)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
             borderRadius: 6, padding: '4px 10px',
-            color: '#F59E0B', fontSize: 11,
+            color: '#10B981', fontSize: 11,
             fontFamily: 'var(--font-mono)', cursor: 'pointer',
           }}
         >+ brew</button>
@@ -199,20 +213,20 @@ function CoffeeCounter() {
 export default function SideWidgets() {
   return (
     <div style={{
-      width: 230,
+      width: '280px',
+      maxWidth: '100%',
       flexShrink: 0,
       display: 'flex',
       flexDirection: 'column',
-      gap: 8,
+      gap: 16,
       overflowY: 'auto',
-      paddingBlock: 8,
-      paddingRight: 8,
+      padding: '16px',
     }}>
       <Neofetch />
       <NowBuilding />
       <GitHubStats />
       <CurrentlyLearning />
-      <CoffeeCounter />
+      <TeaCounter />
     </div>
   )
 }

@@ -8,17 +8,26 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   Complete: { bg: 'rgba(148,163,184,0.15)', text: '#94A3B8' },
 }
 
-interface Props {
-  onClose: () => void
-}
-
-export default function ProjectsWindow({ onClose }: Props) {
+export default function ProjectsWindow() {
   const [projects, setProjects] = useState<Project[]>([])
   const [selected, setSelected] = useState<Project | null>(null)
   const [filter, setFilter] = useState<string>('All')
+  const [isMobile, setIsMobile] = useState(false)
 
-  const loadProjects = () => {
-    setProjects(portfolioApi.getProjects())
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const loadProjects = async () => {
+    try {
+      const data = await portfolioApi.getProjects()
+      setProjects(data)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
@@ -31,16 +40,9 @@ export default function ProjectsWindow({ onClose }: Props) {
   const filtered = filter === 'All' ? projects : projects.filter(p => p.status === filter)
 
   return (
-    <div className="window" style={{
+    <div style={{
       display: 'flex', flexDirection: 'column', height: '100%',
     }}>
-      {/* Title bar */}
-      <div className="window-title-bar" style={{ cursor: 'default' }}>
-        <div className="window-dot red" onClick={onClose} title="Close" />
-        <div className="window-dot yellow" />
-        <div className="window-dot green" />
-        <span className="window-title">C:\Projects — {PROJECTS.length} items</span>
-      </div>
 
       {/* Toolbar */}
       <div style={{
@@ -67,13 +69,14 @@ export default function ProjectsWindow({ onClose }: Props) {
       {/* Content */}
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
         {/* Project grid */}
-        <div style={{
-          flex: 1, padding: 12, overflowY: 'auto',
-          display: 'grid',
-          gridTemplateColumns: selected ? '1fr' : 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: 10,
-          alignContent: 'start',
-        }}>
+        {(!isMobile || !selected) && (
+          <div style={{
+            flex: 1, padding: 12, overflowY: 'auto',
+            display: 'grid',
+            gridTemplateColumns: selected ? '1fr' : 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: 10,
+            alignContent: 'start',
+          }}>
           {filtered.map(project => (
             <div
               key={project.id}
@@ -145,15 +148,36 @@ export default function ProjectsWindow({ onClose }: Props) {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Detail panel */}
         {selected && (
           <div style={{
-            width: 280, borderLeft: '1px solid var(--border-light)',
+            width: isMobile ? '100%' : 280,
+            borderLeft: isMobile ? 'none' : '1px solid var(--border-light)',
             padding: 16, overflowY: 'auto', background: 'var(--bg-window)',
             flexShrink: 0,
           }}>
+            {isMobile && (
+              <button
+                onClick={() => setSelected(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--blue-primary)',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontFamily: 'var(--font-mono)',
+                  padding: '0 0 12px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                ← Back to Projects
+              </button>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <span style={{ fontSize: 28 }}>{selected.emoji}</span>
               <div>

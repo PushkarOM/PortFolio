@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
-import { portfolioApi } from '../services/api'
+import { portfolioApi, Project, SkillCategory } from '../services/api'
+import { useWindowManager } from '../contexts/WindowContext'
 
 interface TermLine {
   type: 'prompt' | 'output' | 'error' | 'info' | 'success'
@@ -10,22 +11,25 @@ const HELP_TEXT = `
 Available commands:
   help             — show this message
   whoami           — about Pushkar
-  projects         — list projects
+  projects         — list projects / open window
   project <id>     — view project details
-  skills           — technical skills
-  experience       — work history timeline
-  resume           — view resume details
-  contact          — get contact channels
+  skills           — technical skills / open window
+  experience       — work history timeline / open window
+  resume           — view resume details / open window
+  contact          — get contact channels / open window
+  settings         — open Studio CMS & settings window
   theme <name>     — change theme (aurora | midnight | retro | matrix)
   neofetch         — system specs neofetch style
   coffee           — brew a coffee ☕
   clear            — clear terminal output
+  exit             — exit/close terminal window
   ask <question>   — ask Pushkar's AI Assistant anything
 `
 
 const COMMAND_LIST = [
   'help',
   'whoami',
+  'home',
   'projects',
   'project emotionsense',
   'project reposage',
@@ -37,6 +41,8 @@ const COMMAND_LIST = [
   'experience',
   'resume',
   'contact',
+  'settings',
+  'cms',
   'theme aurora',
   'theme midnight',
   'theme retro',
@@ -44,16 +50,16 @@ const COMMAND_LIST = [
   'neofetch',
   'coffee',
   'clear',
+  'exit',
   'ask',
 ]
 
 interface Props {
-  visible: boolean
-  onClose: () => void
   onThemeChange?: (theme: string) => void
 }
 
-export default function TerminalWindow({ visible, onClose, onThemeChange }: Props) {
+export default function TerminalWindow({ onThemeChange }: Props) {
+  const { openWindow, closeWindow } = useWindowManager()
   const [lines, setLines] = useState<TermLine[]>([
     { type: 'success', content: 'PushkarOS v3.1.4 Terminal' },
     { type: 'output', content: 'Type "help" to list commands, or use tab completion.' },
@@ -73,8 +79,8 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
   }, [lines])
 
   useEffect(() => {
-    if (visible) inputRef.current?.focus()
-  }, [visible])
+    inputRef.current?.focus()
+  }, [])
 
   // Handle autocomplete suggestions
   useEffect(() => {
@@ -126,6 +132,15 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
 
     if (lowerCmd === 'help') {
       newLines.push({ type: 'info', content: HELP_TEXT })
+    } else if (lowerCmd === 'exit') {
+      newLines.push({ type: 'success', content: 'Exiting terminal...' })
+      closeWindow('terminal')
+    } else if (lowerCmd === 'home') {
+      newLines.push({ type: 'success', content: 'Focusing Home (About Me)...' })
+      openWindow('home')
+    } else if (lowerCmd === 'settings' || lowerCmd === 'cms') {
+      newLines.push({ type: 'success', content: '⚙️ Opening Studio CMS & Settings...' })
+      openWindow('studio')
     } else if (lowerCmd === 'whoami') {
       newLines.push(
         { type: 'success', content: '👤 Pushkar' },
@@ -134,65 +149,87 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
         { type: 'output', content: '   Current focus: LLM applications, Agents, and Robotics' }
       )
     } else if (lowerCmd === 'projects') {
-      const projs = portfolioApi.getProjects()
-      newLines.push({ type: 'success', content: `📁 Projects [${projs.length} found]` })
-      projs.forEach(p => {
-        newLines.push({ type: 'output', content: `   ${p.id.padEnd(16)} — [${p.status}] ${p.name}: ${p.description.slice(0, 70)}...` })
-      })
+      openWindow('projects')
+      try {
+        const projs = await portfolioApi.getProjects()
+        newLines.push({ type: 'success', content: `📁 Projects [${projs.length} found] — Opening Projects Window...` })
+        projs.forEach(p => {
+          newLines.push({ type: 'output', content: `   ${p.id.padEnd(16)} — [${p.status}] ${p.name}: ${p.description.slice(0, 70)}...` })
+        })
+      } catch (err) {
+        newLines.push({ type: 'error', content: 'Failed to load projects from API.' })
+      }
       newLines.push({ type: 'info', content: '   → type "project <id>" to view highlights and tech stack.' })
     } else if (lowerCmd.startsWith('project ')) {
       const id = lowerCmd.split(' ')[1]
-      const proj = portfolioApi.getProjects().find(p => p.id === id)
-      if (proj) {
-        newLines.push(
-          { type: 'success', content: `${proj.emoji} ${proj.name} [Status: ${proj.status}]` },
-          { type: 'output', content: `   Description: ${proj.description}` },
-          { type: 'output', content: `   Stack:       ${proj.stack.join(', ')}` },
-          { type: 'output', content: `   Stars:       ⭐ ${proj.stars}` }
-        )
-        if (proj.highlights && proj.highlights.length > 0) {
-          newLines.push({ type: 'info', content: '   Highlights:' })
-          proj.highlights.forEach(h => {
-            newLines.push({ type: 'output', content: `     ▸ ${h}` })
-          })
+      try {
+        const projs = await portfolioApi.getProjects()
+        const proj = projs.find(p => p.id === id)
+        if (proj) {
+          newLines.push(
+            { type: 'success', content: `${proj.emoji} ${proj.name} [Status: ${proj.status}]` },
+            { type: 'output', content: `   Description: ${proj.description}` },
+            { type: 'output', content: `   Stack:       ${proj.stack.join(', ')}` },
+            { type: 'output', content: `   Stars:       ⭐ ${proj.stars}` }
+          )
+          if (proj.highlights && proj.highlights.length > 0) {
+            newLines.push({ type: 'info', content: '   Highlights:' })
+            proj.highlights.forEach(h => {
+              newLines.push({ type: 'output', content: `     ▸ ${h}` })
+            })
+          }
+          if (proj.githubUrl) {
+            newLines.push({ type: 'info', content: `   GitHub:      ${proj.githubUrl}` })
+          }
+        } else {
+          newLines.push({ type: 'error', content: `Project not found: "${id}". Type "projects" to list all.` })
         }
-        if (proj.githubUrl) {
-          newLines.push({ type: 'info', content: `   GitHub:      ${proj.githubUrl}` })
-        }
-      } else {
-        newLines.push({ type: 'error', content: `Project not found: "${id}". Type "projects" to list all.` })
+      } catch (err) {
+        newLines.push({ type: 'error', content: 'Failed to fetch project details.' })
       }
     } else if (lowerCmd === 'skills') {
-      const skills = portfolioApi.getSkills()
-      newLines.push({ type: 'success', content: '⚡ Technical Skills' })
-      skills.forEach(cat => {
-        newLines.push({ type: 'info', content: `   # ${cat.name}` })
-        cat.skills.forEach(s => {
-          const bar = '█'.repeat(Math.round(s.level / 10)).padEnd(10, '░')
-          newLines.push({ type: 'output', content: `     ${s.name.padEnd(15)} ${bar} ${s.level}%` })
+      openWindow('skills')
+      try {
+        const skills = await portfolioApi.getSkills()
+        newLines.push({ type: 'success', content: '⚡ Technical Skills — Opening Skills Window...' })
+        skills.forEach(cat => {
+          newLines.push({ type: 'info', content: `   # ${cat.name}` })
+          cat.skills.forEach(s => {
+            const bar = '█'.repeat(Math.round(s.level / 10)).padEnd(10, '░')
+            newLines.push({ type: 'output', content: `     ${s.name.padEnd(15)} ${bar} ${s.level}%` })
+          })
         })
-      })
+      } catch (err) {
+        newLines.push({ type: 'error', content: 'Failed to load skills.' })
+      }
     } else if (lowerCmd === 'experience') {
-      const exps = portfolioApi.getExperiences()
-      newLines.push({ type: 'success', content: '💼 Experience Timeline' })
-      exps.forEach(exp => {
-        newLines.push(
-          { type: 'info', content: `   ▶ ${exp.role} @ ${exp.company} (${exp.period})` },
-          ...exp.achievements.map(a => ({ type: 'output' as const, content: `     ▸ ${a}` })),
-          { type: 'output', content: `     Tech Stack: ${exp.stack.join(', ')}` }
-        )
-      })
+      openWindow('experience')
+      try {
+        const exps = await portfolioApi.getExperiences()
+        newLines.push({ type: 'success', content: '💼 Experience Timeline — Opening Experience Window...' })
+        exps.forEach(exp => {
+          newLines.push(
+            { type: 'info', content: `   ▶ ${exp.role} @ ${exp.company} (${exp.period})` },
+            ...exp.achievements.map(a => ({ type: 'output' as const, content: `     ▸ ${a}` })),
+            { type: 'output', content: `     Tech Stack: ${exp.stack.join(', ')}` }
+          )
+        })
+      } catch (err) {
+        newLines.push({ type: 'error', content: 'Failed to load experiences.' })
+      }
     } else if (lowerCmd === 'resume') {
+      openWindow('resume')
       newLines.push(
-        { type: 'success', content: '📄 Resume summary' },
+        { type: 'success', content: '📄 Resume summary — Opening Resume Window...' },
         { type: 'output', content: '   Degree: B.Tech Computer Science Engineering (AI & ML)' },
         { type: 'output', content: '   Experience: 2 Internships (ML Engineering, Web Dev)' },
         { type: 'output', content: '   Skills: Python, PyTorch, React, FastAPI, Docker, AWS' },
         { type: 'info', content: '   → Use "download resume" or click Resume in Dock to download PDF.' }
       )
     } else if (lowerCmd === 'contact') {
+      openWindow('contact')
       newLines.push(
-        { type: 'success', content: '📬 Contact Info' },
+        { type: 'success', content: '📬 Contact Info — Opening Contact Window...' },
         { type: 'output', content: '   Email:    pushkarchaturvedi42@gmail.com' },
         { type: 'output', content: '   LinkedIn: linkedin.com/in/pushkar-chaturvedi-a83778284' },
         { type: 'output', content: '   Medium:   medium.com/@pushkarchaturvedi42' },
@@ -212,50 +249,61 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
             GPU: NVIDIA RTX 4060 Mobile
             Memory: 16GB RAM` })
     } else if (lowerCmd === 'coffee') {
-      const current = portfolioApi.getCoffeeCount()
-      const next = current + 1
-      portfolioApi.saveCoffeeCount(next)
-      newLines.push({ type: 'success', content: `☕ Successfully brewed a fresh cup of coffee! Total brewed today: ${next}` })
+      try {
+        const current = await portfolioApi.getCoffeeCount()
+        const next = current + 1
+        await portfolioApi.saveCoffeeCount(next)
+        newLines.push({ type: 'success', content: `☕ Successfully brewed a fresh cup of coffee! Total brewed today: ${next}` })
+      } catch (err) {
+        newLines.push({ type: 'error', content: 'Failed to brew coffee.' })
+      }
     } else if (lowerCmd.startsWith('ask ')) {
       const question = trimmed.slice(4)
       setLines(prev => [...prev, ...newLines, { type: 'info', content: '🤖 AI Assistant is thinking...' }])
       setInput('')
 
       // Simulated stream logic
-      setTimeout(() => {
-        const answer = getMockAIAnswer(question)
-        // Stream text word by word
-        const words = answer.split(' ')
-        let currentText = ''
-        let wordIdx = 0
+      try {
+        const projects = await portfolioApi.getProjects()
+        const skills = await portfolioApi.getSkills()
 
-        // Replace the "Thinking..." line with the starting stream
-        setLines(prev => {
-          const next = [...prev]
-          next[next.length - 1] = { type: 'success', content: '🤖 AI Answer:' }
-          return next
-        })
+        setTimeout(() => {
+          const answer = getMockAIAnswer(question, projects, skills)
+          // Stream text word by word
+          const words = answer.split(' ')
+          let currentText = ''
+          let wordIdx = 0
 
-        const interval = setInterval(() => {
-          if (wordIdx < words.length) {
-            currentText += (wordIdx === 0 ? '' : ' ') + words[wordIdx]
-            setLines(prev => {
-              const next = [...prev]
-              // Check if we need to append or update line
-              const lastLine = next[next.length - 1]
-              if (lastLine.type === 'output') {
-                next[next.length - 1] = { type: 'output', content: currentText }
-              } else {
-                next.push({ type: 'output', content: currentText })
-              }
-              return next
-            })
-            wordIdx++
-          } else {
-            clearInterval(interval)
-          }
-        }, 80)
-      }, 800)
+          // Replace the "Thinking..." line with the starting stream
+          setLines(prev => {
+            const next = [...prev]
+            next[next.length - 1] = { type: 'success', content: '🤖 AI Answer:' }
+            return next
+          })
+
+          const interval = setInterval(() => {
+            if (wordIdx < words.length) {
+              currentText += (wordIdx === 0 ? '' : ' ') + words[wordIdx]
+              setLines(prev => {
+                const next = [...prev]
+                // Check if we need to append or update line
+                const lastLine = next[next.length - 1]
+                if (lastLine.type === 'output') {
+                  next[next.length - 1] = { type: 'output', content: currentText }
+                } else {
+                  next.push({ type: 'output', content: currentText })
+                }
+                return next
+              })
+              wordIdx++
+            } else {
+              clearInterval(interval)
+            }
+          }, 80)
+        }, 800)
+      } catch (err) {
+        setLines(prev => [...prev, { type: 'error', content: 'Failed to fetch context for AI assistant.' }])
+      }
 
       setHistory(prev => [cmd, ...prev.slice(0, 49)])
       setHistoryIdx(-1)
@@ -306,9 +354,8 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
     }
   }
 
-  const getMockAIAnswer = (q: string): string => {
+  const getMockAIAnswer = (q: string, projects: Project[], skills: SkillCategory[]): string => {
     const query = q.toLowerCase()
-    const projects = portfolioApi.getProjects()
 
     if (query.includes('project') || query.includes('build') || query.includes('make')) {
       const projNames = projects.map(p => p.name).join(', ')
@@ -316,17 +363,14 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
     }
 
     if (query.includes('emotionsense')) {
-      const e = projects.find(p => p.id === 'emotionsense')
       return `EmotionSense is a real-time facial emotion recognition system. It achieves 94.2% accuracy using custom deep Convolutional Neural Networks (CNNs) trained on the FER-2013 dataset. The backend is powered by PyTorch and OpenCV, with real-time frame streaming supported by WebSockets and FastAPI.`
     }
 
     if (query.includes('reposage')) {
-      const r = projects.find(p => p.id === 'reposage')
       return `RepoSage is a smart developer assistant that reviews code repositories. It integrates GPT-4 with a Retrieval-Augmented Generation (RAG) architecture to ingest full codebases, identify security vulnerabilities, suggest enhancements, and explain repository structures.`
     }
 
     if (query.includes('skills') || query.includes('stack') || query.includes('technolog')) {
-      const skills = portfolioApi.getSkills()
       const categories = skills.map(c => `${c.name} (${c.skills.map(s => s.name).join(', ')})`).join('; ')
       return `Pushkar's technical capabilities include: ${categories}. His core strengths are in Machine Learning (PyTorch, TensorFlow) and Full-Stack development (React, FastAPI, Docker, and AWS).`
     }
@@ -342,19 +386,8 @@ export default function TerminalWindow({ visible, onClose, onThemeChange }: Prop
     return `Thanks for asking! I'm Pushkar's personal workspace assistant. I can help explain his work, outline details about ${projects.map(p => p.name).join(', ')}, or discuss his work history. What would you like to know more about?`
   }
 
-  if (!visible) return null
-
   return (
-    <div className="window window-open" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Title bar */}
-      <div className="window-title-bar" style={{ cursor: 'default' }}>
-        <div className="window-dot red" onClick={onClose} title="Close" />
-        <div className="window-dot yellow" />
-        <div className="window-dot green" />
-        <span className="window-title">C:\PUSHKAR\terminal.exe</span>
-        <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(52,211,153,0.7)' }}>bash</span>
-      </div>
-
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       {/* Terminal body */}
       <div
         style={{

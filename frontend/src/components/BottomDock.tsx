@@ -12,6 +12,8 @@ interface Props {
   onOpenTerminal: () => void
   onOpenProjects: () => void
   onOpenContact: () => void
+  onOpenResume: () => void
+  onOpenSettings: () => void
 }
 
 function GitHubIcon() {
@@ -74,17 +76,17 @@ function ResumeIcon() {
   )
 }
 
-export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact }: Props) {
+export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   const items: DockItem[] = [
     { id: 'terminal', label: 'Terminal', icon: <TerminalIcon />, action: onOpenTerminal },
     { id: 'projects', label: 'Projects', icon: <FolderIcon />, action: onOpenProjects },
-    { id: 'github', label: 'GitHub', icon: <GitHubIcon />, href: 'https://github.com' },
-    { id: 'linkedin', label: 'LinkedIn', icon: <LinkedInIcon />, href: 'https://linkedin.com' },
+    { id: 'github', label: 'GitHub', icon: <GitHubIcon />, href: 'https://github.com/PushkarOM' },
+    { id: 'linkedin', label: 'LinkedIn', icon: <LinkedInIcon />, href: 'https://in.linkedin.com/in/pushkar-chaturvedi-a83778284' },
     { id: 'email', label: 'Email', icon: <MailIcon />, action: onOpenContact },
-    { id: 'resume', label: 'Resume', icon: <ResumeIcon /> },
-    { id: 'settings', label: 'Settings', icon: <SettingsIcon /> },
+    { id: 'resume', label: 'Resume', icon: <ResumeIcon />, action: onOpenResume },
+    { id: 'settings', label: 'Settings', icon: <SettingsIcon />, action: onOpenSettings },
   ]
 
   const getScale = (i: number) => {

@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import { portfolioApi, Project, Experience, SkillCategory } from '../services/api'
 
 export default function StudioCMS() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+  const [loginError, setLoginError] = useState('')
+
   const [activeTab, setActiveTab] = useState<'projects' | 'experience' | 'skills' | 'settings'>('projects')
   const [projects, setProjects] = useState<Project[]>([])
   const [experiences, setExperiences] = useState<Experience[]>([])
@@ -16,21 +21,94 @@ export default function StudioCMS() {
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
 
+  // Password change state
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [passwordMessage, setPasswordMessage] = useState('')
+
   // Load initial data
-  const loadData = () => {
-    setProjects(portfolioApi.getProjects())
-    setExperiences(portfolioApi.getExperiences())
-    setSkills(portfolioApi.getSkills())
-    setStatusText(portfolioApi.getStatusText())
-    setCoffeeCount(portfolioApi.getCoffeeCount())
+  const loadData = async () => {
+    try {
+      const projs = await portfolioApi.getProjects()
+      const exps = await portfolioApi.getExperiences()
+      const skls = await portfolioApi.getSkills()
+      const stat = await portfolioApi.getStatusText()
+      const coffees = await portfolioApi.getCoffeeCount()
+
+      setProjects(projs)
+      setExperiences(exps)
+      setSkills(skls)
+      setStatusText(stat)
+      setCoffeeCount(coffees)
+    } catch (e) {
+      console.error('Failed to load portfolio data:', e)
+    }
   }
 
   useEffect(() => {
-    loadData()
-    // Listen for data updates from other places (like terminal)
+    const authState = portfolioApi.isAuthenticated()
+    setIsAuthenticated(authState)
+    if (authState) {
+      loadData()
+    }
+
+    const handleAuthLogout = () => {
+      setIsAuthenticated(false)
+    }
+
     window.addEventListener('pushkaros-data-change', loadData)
-    return () => window.removeEventListener('pushkaros-data-change', loadData)
+    window.addEventListener('pushkaros-auth-logout', handleAuthLogout)
+    return () => {
+      window.removeEventListener('pushkaros-data-change', loadData)
+      window.removeEventListener('pushkaros-auth-logout', handleAuthLogout)
+    }
   }, [])
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!password) return
+    setLoggingIn(true)
+    setLoginError('')
+    try {
+      const success = await portfolioApi.login(password)
+      if (success) {
+        setIsAuthenticated(true)
+        loadData()
+      } else {
+        setLoginError('Incorrect password.')
+      }
+    } catch (err: any) {
+      setLoginError(err.message || 'Incorrect password.')
+    } finally {
+      setLoggingIn(false)
+    }
+  }
+
+  const handleLogout = () => {
+    portfolioApi.logout()
+    setIsAuthenticated(false)
+    setPassword('')
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!oldPassword || !newPassword) {
+      setPasswordMessage('Both fields are required.')
+      return
+    }
+    try {
+      const success = await portfolioApi.changePassword(oldPassword, newPassword)
+      if (success) {
+        setPasswordMessage('Password updated successfully!')
+        setOldPassword('')
+        setNewPassword('')
+      } else {
+        setPasswordMessage('Failed to update password.')
+      }
+    } catch (err: any) {
+      setPasswordMessage(err.message || 'Failed to update password.')
+    }
+  }
 
   const triggerSaveIndicator = () => {
     setSaving(true)
@@ -43,21 +121,29 @@ export default function StudioCMS() {
   }
 
   // Project handlers
-  const handleSaveProject = (e: React.FormEvent) => {
+  const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingProject) return
 
-    portfolioApi.saveProject(editingProject)
-    setEditingProject(null)
-    triggerSaveIndicator()
-    loadData()
-  }
-
-  const handleDeleteProject = (id: string) => {
-    if (confirm('Delete project?')) {
-      portfolioApi.deleteProject(id)
+    try {
+      await portfolioApi.saveProject(editingProject)
+      setEditingProject(null)
       triggerSaveIndicator()
       loadData()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleDeleteProject = async (id: string) => {
+    if (confirm('Delete project?')) {
+      try {
+        await portfolioApi.deleteProject(id)
+        triggerSaveIndicator()
+        loadData()
+      } catch (err) {
+        console.error(err)
+      }
     }
   }
 
@@ -76,21 +162,29 @@ export default function StudioCMS() {
   }
 
   // Experience handlers
-  const handleSaveExperience = (e: React.FormEvent) => {
+  const handleSaveExperience = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingExperience) return
 
-    portfolioApi.saveExperience(editingExperience)
-    setEditingExperience(null)
-    triggerSaveIndicator()
-    loadData()
-  }
-
-  const handleDeleteExperience = (id: string) => {
-    if (confirm('Delete experience?')) {
-      portfolioApi.deleteExperience(id)
+    try {
+      await portfolioApi.saveExperience(editingExperience)
+      setEditingExperience(null)
       triggerSaveIndicator()
       loadData()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleDeleteExperience = async (id: string) => {
+    if (confirm('Delete experience?')) {
+      try {
+        await portfolioApi.deleteExperience(id)
+        triggerSaveIndicator()
+        loadData()
+      } catch (err) {
+        console.error(err)
+      }
     }
   }
 
@@ -107,13 +201,127 @@ export default function StudioCMS() {
   }
 
   // Settings handlers
-  const handleSaveSettings = () => {
-    portfolioApi.saveStatusText(statusText)
-    portfolioApi.saveCoffeeCount(coffeeCount)
-    triggerSaveIndicator()
-    loadData()
+  const handleSaveSettings = async () => {
+    try {
+      await portfolioApi.saveStatusText(statusText)
+      await portfolioApi.saveCoffeeCount(coffeeCount)
+      triggerSaveIndicator()
+      loadData()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
+  // LOCK SCREEN RENDER
+  if (!isAuthenticated) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        padding: 24,
+        background: 'var(--bg-terminal)',
+        fontFamily: 'var(--font-mono)',
+        color: 'var(--text-terminal)',
+      }}>
+        <form onSubmit={handleLoginSubmit} style={{
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid var(--border-window)',
+          borderRadius: 12,
+          padding: '30px 24px',
+          width: '100%',
+          maxWidth: 360,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 16,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}>
+          <div style={{ fontSize: 32, marginBottom: 4 }} className="float-a">🔒</div>
+          <div style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+            fontFamily: 'var(--font-display)',
+            textAlign: 'center',
+            letterSpacing: '0.02em',
+          }}>
+            PushkarOS Studio CMS
+          </div>
+          <div style={{
+            fontSize: 10,
+            color: 'var(--text-terminal-dim)',
+            textAlign: 'center',
+            lineHeight: 1.4,
+            marginTop: -8,
+          }}>
+            Please enter your administrator password to customize projects and settings.
+          </div>
+
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+            <label style={{ fontSize: 9, color: 'var(--text-terminal-dim)', textTransform: 'uppercase' }}>Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              disabled={loggingIn}
+              style={{
+                width: '100%',
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 6,
+                padding: '10px 12px',
+                fontSize: 13,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-terminal)',
+                outline: 'none',
+                textAlign: 'center',
+              }}
+              autoFocus
+            />
+          </div>
+
+          {loginError && (
+            <div style={{
+              fontSize: 11,
+              color: 'var(--red)',
+              textAlign: 'center',
+              fontFamily: 'var(--font-mono)',
+            }}>
+              ✗ {loginError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loggingIn || !password}
+            style={{
+              width: '100%',
+              background: 'var(--blue-primary)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              padding: '10px 16px',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: loggingIn || !password ? 'default' : 'pointer',
+              transition: 'background 0.15s',
+              marginTop: 4,
+            }}
+            onMouseEnter={e => { if (!loggingIn && password) e.currentTarget.style.background = 'var(--blue-bright)' }}
+            onMouseLeave={e => { if (!loggingIn && password) e.currentTarget.style.background = 'var(--blue-primary)' }}
+          >
+            {loggingIn ? 'Unlocking...' : 'Unlock CMS'}
+          </button>
+        </form>
+      </div>
+    )
+  }
+
+  // AUTHENTICATED CMS RENDER
   return (
     <div style={{ display: 'flex', height: '100%', minHeight: 0, background: 'var(--bg-window)' }}>
       {/* CMS Sidebar */}
@@ -150,6 +358,7 @@ export default function StudioCMS() {
               setActiveTab(tab.id as any)
               setEditingProject(null)
               setEditingExperience(null)
+              setPasswordMessage('')
             }}
             style={{
               width: '100%',
@@ -171,7 +380,7 @@ export default function StudioCMS() {
         ))}
 
         <div style={{ marginTop: 'auto', padding: 8, borderTop: '1px solid var(--border-light)' }}>
-          <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: 8 }}>
             {saving ? (
               <span style={{ color: 'var(--amber)' }}>● Saving...</span>
             ) : saveStatus === 'saved' ? (
@@ -180,6 +389,24 @@ export default function StudioCMS() {
               <span>● Ready</span>
             )}
           </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              textAlign: 'center',
+              padding: '6px 10px',
+              borderRadius: 6,
+              border: '1px solid var(--border-light)',
+              background: 'transparent',
+              color: 'var(--red)',
+              fontSize: 11,
+              fontFamily: 'var(--font-mono)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            Logout
+          </button>
         </div>
       </div>
 
@@ -335,6 +562,24 @@ export default function StudioCMS() {
                       style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
                       value={editingProject.stack.join(', ')}
                       onChange={e => setEditingProject({ ...editingProject, stack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>GitHub URL</label>
+                    <input
+                      style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)' }}
+                      value={editingProject.githubUrl || ''}
+                      onChange={e => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Live/Demo URL</label>
+                    <input
+                      style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)' }}
+                      value={editingProject.liveUrl || ''}
+                      onChange={e => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
                     />
                   </div>
                 </div>
@@ -602,10 +847,63 @@ export default function StudioCMS() {
                 cursor: 'pointer',
                 alignSelf: 'flex-start',
                 marginTop: 8,
+                marginBottom: 20,
               }}
             >
               Save Settings
             </button>
+
+            {/* Change Password Admin Section */}
+            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: 16, marginTop: 10 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, margin: '0 0 10px 0', color: 'var(--text-primary)' }}>Change CMS Password</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Old Password</label>
+                  <input
+                    type="password"
+                    style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)', fontSize: 12 }}
+                    value={oldPassword}
+                    onChange={e => setOldPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>New Password</label>
+                  <input
+                    type="password"
+                    style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)', fontSize: 12 }}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+              {passwordMessage && (
+                <div style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  color: passwordMessage.includes('successfully') ? 'var(--mint)' : 'var(--red)',
+                  marginBottom: 10,
+                }}>
+                  {passwordMessage}
+                </div>
+              )}
+              <button
+                onClick={handleChangePassword}
+                style={{
+                  background: 'var(--blue-primary)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '8px 16px',
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  cursor: 'pointer',
+                }}
+              >
+                Update Password
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -35,17 +35,7 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
   }, [displayed, typing, roleIndex])
 
   return (
-    <div className="window window-open" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-      {/* Title bar */}
-      <div className="window-title-bar" style={{ cursor: 'default' }}>
-        <div className="window-dot red" />
-        <div className="window-dot yellow" />
-        <div className="window-dot green" />
-        <span className="window-title">C:\PUSHKAR\about_me.exe</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ opacity: 0.4 }}>
-          <rect x="1" y="1" width="10" height="10" rx="2" stroke="white" strokeWidth="1.2" />
-        </svg>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
 
       {/* Content */}
       <div style={{
