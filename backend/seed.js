@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import dns from 'dns';
-import User from './models/User.js';
-import Project from './models/Project.js';
-import Experience from './models/Experience.js';
-import Skill from './models/Skill.js';
-import Settings from './models/Settings.js';
+import User from './src/modules/auth/auth.model.js';
+import Project from './src/modules/portfolio/project.model.js';
+import Experience from './src/modules/portfolio/experience.model.js';
+import Skill from './src/modules/portfolio/skill.model.js';
+import Settings from './src/modules/settings/settings.model.js';
 
 dotenv.config();
 dns.setServers(['8.8.8.8', '8.8.4.4']);

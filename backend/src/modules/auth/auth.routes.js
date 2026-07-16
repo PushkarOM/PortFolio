@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import authMiddleware from '../../middleware/auth.middleware.js';
-import User from './auth.model.js'; // Will fix model import later
+import User from './auth.model.js';
 
 import rateLimit from 'express-rate-limit';
 
