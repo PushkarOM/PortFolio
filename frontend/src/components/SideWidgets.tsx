@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { portfolioApi } from '../services/api'
+import { portfolioApi, NowBuildingItem, LearningItem } from '../services/api'
 
 function WidgetShell({ title, children, accent = '#3B82F6' }: {
   title: string
@@ -75,29 +75,25 @@ function Neofetch() {
 }
 
 function NowBuilding() {
-  const [status, setStatus] = useState('')
+  const [items, setItems] = useState<NowBuildingItem[]>([])
 
-  const loadStatus = async () => {
+  const loadData = async () => {
     try {
-      const text = await portfolioApi.getStatusText()
-      setStatus(text)
+      const data = await portfolioApi.getNowBuilding()
+      setItems(data)
     } catch (e) {
       console.error(e)
     }
   }
 
   useEffect(() => {
-    loadStatus()
-    window.addEventListener('pushkaros-data-change', loadStatus)
-    return () => window.removeEventListener('pushkaros-data-change', loadStatus)
+    loadData()
+    window.addEventListener('pushkaros-data-change', loadData)
+    return () => window.removeEventListener('pushkaros-data-change', loadData)
   }, [])
 
-  const items = [
-    { text: status || 'RepoSage v2.0', dot: '#3B82F6' },
-    { text: 'Personal AI assistant', dot: '#8B5CF6' },
-    { text: 'PushkarOS portfolio', dot: '#34D399' },
-    { text: 'Making impact 🌍', dot: '#F59E0B' },
-  ]
+  if (items.length === 0) return null
+
   return (
     <WidgetShell title="now_building.md" accent="#3B82F6">
       {items.map((item, i) => (
@@ -111,16 +107,22 @@ function NowBuilding() {
 }
 
 function GitHubStats() {
-  const stats = [
-    { label: 'Repos', value: '42', color: '#3B82F6' },
-    { label: 'Stars', value: '180+', color: '#F59E0B' },
-    { label: 'Streak', value: '28d', color: '#34D399' },
-    { label: 'PRs', value: '76', color: '#8B5CF6' },
+  const [stats, setStats] = useState({ repos: 42, stars: 180, streak: '28d', prs: 76 })
+
+  useEffect(() => {
+    portfolioApi.getGithubStats().then(setStats).catch(console.error)
+  }, [])
+
+  const displayStats = [
+    { label: 'Repos', value: stats.repos.toString(), color: '#3B82F6' },
+    { label: 'Stars', value: stats.stars.toString(), color: '#F59E0B' },
+    { label: 'Streak', value: stats.streak, color: '#34D399' },
+    { label: 'PRs', value: stats.prs.toString(), color: '#8B5CF6' },
   ]
   return (
     <WidgetShell title="github_stats.json" accent="#F59E0B">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {stats.map(s => (
+        {displayStats.map(s => (
           <div key={s.label} style={{
             background: 'var(--bg-window-alt)',
             border: '1px solid var(--border-light)',
@@ -136,11 +138,24 @@ function GitHubStats() {
 }
 
 function CurrentlyLearning() {
-  const items = [
-    { name: 'LLM Fine-tuning', pct: 70, color: '#8B5CF6' },
-    { name: 'RAG Systems', pct: 55, color: '#3B82F6' },
-    { name: 'Rust', pct: 25, color: '#F59E0B' },
-  ]
+  const [items, setItems] = useState<LearningItem[]>([])
+
+  const loadData = async () => {
+    try {
+      const data = await portfolioApi.getLearningLog()
+      setItems(data)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+    window.addEventListener('pushkaros-data-change', loadData)
+    return () => window.removeEventListener('pushkaros-data-change', loadData)
+  }, [])
+
+  if (items.length === 0) return null
   return (
     <WidgetShell title="learning.log" accent="#8B5CF6">
       {items.map(item => (
@@ -159,7 +174,7 @@ function CurrentlyLearning() {
 }
 
 function TeaCounter() {
-  const [count, setCount] = useState(3)
+  const [count, setCount] = useState(0)
 
   const loadTea = async () => {
     try {
@@ -171,7 +186,26 @@ function TeaCounter() {
   }
 
   useEffect(() => {
-    loadTea()
+    const handleVisit = async () => {
+      try {
+        const today = new Date().toDateString();
+        const lastVisit = localStorage.getItem('pushkaros_last_visit');
+        
+        const currentCount = await portfolioApi.getCoffeeCount();
+        
+        if (lastVisit !== today) {
+          localStorage.setItem('pushkaros_last_visit', today);
+          await portfolioApi.saveCoffeeCount(currentCount + 1);
+        } else {
+          setCount(currentCount);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    handleVisit();
+
     window.addEventListener('pushkaros-data-change', loadTea)
     return () => window.removeEventListener('pushkaros-data-change', loadTea)
   }, [])

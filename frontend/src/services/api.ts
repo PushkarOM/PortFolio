@@ -186,6 +186,30 @@ const DEFAULT_SKILLS: SkillCategory[] = [
   },
 ]
 
+export interface NowBuildingItem {
+  text: string
+  dot: string
+}
+
+export interface LearningItem {
+  name: string
+  pct: number
+  color: string
+}
+
+export const DEFAULT_NOW_BUILDING: NowBuildingItem[] = [
+  { text: 'RepoSage v2.0', dot: '#3B82F6' },
+  { text: 'Personal AI assistant', dot: '#8B5CF6' },
+  { text: 'PushkarOS portfolio', dot: '#34D399' },
+  { text: 'Making impact 🌍', dot: '#F59E0B' },
+]
+
+export const DEFAULT_LEARNING_LOG: LearningItem[] = [
+  { name: 'LLM Fine-tuning', pct: 70, color: '#8B5CF6' },
+  { name: 'RAG Systems', pct: 55, color: '#3B82F6' },
+  { name: 'Rust', pct: 25, color: '#F59E0B' },
+]
+
 // LocalStorage helpers
 const getStorageItem = <T>(key: string, defaultValue: T): T => {
   try {
@@ -435,21 +459,89 @@ export const portfolioApi = {
     try {
       const data = await request('/api/settings');
       isBackendOnline = true;
-      return data.coffeeCount !== undefined ? data.coffeeCount : 3;
+      const today = new Date().toDateString();
+      if (data.coffeeDate !== today) {
+        return 0;
+      }
+      return data.coffeeCount !== undefined ? data.coffeeCount : 0;
     } catch (err) {
-      return getStorageItem('pushkaros_coffee_count', 3);
+      const today = new Date().toDateString();
+      if (getStorageItem('pushkaros_coffee_date', '') !== today) {
+        return 0;
+      }
+      return getStorageItem('pushkaros_coffee_count', 0);
     }
   },
 
   saveCoffeeCount: async (count: number): Promise<void> => {
     try {
+      const today = new Date().toDateString();
       await request('/api/settings', {
         method: 'POST',
-        body: JSON.stringify({ coffeeCount: count })
+        body: JSON.stringify({ coffeeCount: count, coffeeDate: today })
       });
       window.dispatchEvent(new Event('pushkaros-data-change'));
     } catch (err) {
+      const today = new Date().toDateString();
       setStorageItem('pushkaros_coffee_count', count);
+      setStorageItem('pushkaros_coffee_date', today);
+    }
+  },
+
+  getGithubStats: async (): Promise<{ repos: number, stars: number, streak: string, prs: number }> => {
+    try {
+      const data = await request('/api/github');
+      return data;
+    } catch (err) {
+      return { repos: 42, stars: 180, streak: '28d', prs: 76 };
+    }
+  },
+
+  getNowBuilding: async (): Promise<NowBuildingItem[]> => {
+    try {
+      const data = await request('/api/settings');
+      if (data.nowBuilding) {
+        return JSON.parse(data.nowBuilding);
+      }
+      return getStorageItem('pushkaros_now_building', DEFAULT_NOW_BUILDING);
+    } catch (err) {
+      return getStorageItem('pushkaros_now_building', DEFAULT_NOW_BUILDING);
+    }
+  },
+
+  saveNowBuilding: async (items: NowBuildingItem[]): Promise<void> => {
+    try {
+      await request('/api/settings', {
+        method: 'POST',
+        body: JSON.stringify({ nowBuilding: JSON.stringify(items) })
+      });
+      window.dispatchEvent(new Event('pushkaros-data-change'));
+    } catch (err) {
+      setStorageItem('pushkaros_now_building', items);
+    }
+  },
+
+  getLearningLog: async (): Promise<LearningItem[]> => {
+    try {
+      const data = await request('/api/settings');
+      if (data.learningLog) {
+        return JSON.parse(data.learningLog);
+      }
+      return getStorageItem('pushkaros_learning_log', DEFAULT_LEARNING_LOG);
+    } catch (err) {
+      return getStorageItem('pushkaros_learning_log', DEFAULT_LEARNING_LOG);
+    }
+  },
+
+  saveLearningLog: async (items: LearningItem[]): Promise<void> => {
+    try {
+      await request('/api/settings', {
+        method: 'POST',
+        body: JSON.stringify({ learningLog: JSON.stringify(items) })
+      });
+      window.dispatchEvent(new Event('pushkaros-data-change'));
+    } catch (err) {
+      setStorageItem('pushkaros_learning_log', items);
     }
   },
 

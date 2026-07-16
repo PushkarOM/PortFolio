@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { portfolioApi, Project, Experience, SkillCategory } from '../services/api'
+import { portfolioApi, Project, Experience, SkillCategory, NowBuildingItem, LearningItem } from '../services/api'
 
 export default function StudioCMS() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -7,10 +7,12 @@ export default function StudioCMS() {
   const [loggingIn, setLoggingIn] = useState(false)
   const [loginError, setLoginError] = useState('')
 
-  const [activeTab, setActiveTab] = useState<'projects' | 'experience' | 'skills' | 'settings'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'experience' | 'skills' | 'sidebar' | 'settings'>('projects')
   const [projects, setProjects] = useState<Project[]>([])
   const [experiences, setExperiences] = useState<Experience[]>([])
   const [skills, setSkills] = useState<SkillCategory[]>([])
+  const [nowBuilding, setNowBuilding] = useState<NowBuildingItem[]>([])
+  const [learningLog, setLearningLog] = useState<LearningItem[]>([])
   const [statusText, setStatusText] = useState('')
   const [coffeeCount, setCoffeeCount] = useState(3)
 
@@ -32,12 +34,16 @@ export default function StudioCMS() {
       const projs = await portfolioApi.getProjects()
       const exps = await portfolioApi.getExperiences()
       const skls = await portfolioApi.getSkills()
+      const nowBuild = await portfolioApi.getNowBuilding()
+      const learnLog = await portfolioApi.getLearningLog()
       const stat = await portfolioApi.getStatusText()
       const coffees = await portfolioApi.getCoffeeCount()
 
       setProjects(projs)
       setExperiences(exps)
       setSkills(skls)
+      setNowBuilding(nowBuild)
+      setLearningLog(learnLog)
       setStatusText(stat)
       setCoffeeCount(coffees)
     } catch (e) {
@@ -201,6 +207,17 @@ export default function StudioCMS() {
   }
 
   // Settings handlers
+  const handleSaveSidebar = async () => {
+    try {
+      await portfolioApi.saveNowBuilding(nowBuilding)
+      await portfolioApi.saveLearningLog(learningLog)
+      triggerSaveIndicator()
+      loadData()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const handleSaveSettings = async () => {
     try {
       await portfolioApi.saveStatusText(statusText)
@@ -350,6 +367,7 @@ export default function StudioCMS() {
           { id: 'projects', label: '📁 Projects' },
           { id: 'experience', label: '💼 Experience' },
           { id: 'skills', label: '⚡ Skills' },
+          { id: 'sidebar', label: '🪟 Sidebar' },
           { id: 'settings', label: '⚙️ Settings' },
         ].map(tab => (
           <button
@@ -810,6 +828,112 @@ export default function StudioCMS() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* TAB: Sidebar */}
+        {activeTab === 'sidebar' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto', paddingRight: 8 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, margin: 0 }}>Sidebar Widgets</h2>
+            
+            {/* Now Building */}
+            <div style={{ background: 'var(--bg-window-alt)', padding: 16, borderRadius: 8, border: '1px solid var(--border-light)' }}>
+              <h3 style={{ fontSize: 14, fontFamily: 'var(--font-mono)', margin: '0 0 12px 0' }}>Now Building</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {nowBuilding.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      style={{ width: 80, background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 6, padding: '6px 8px', color: 'var(--text-primary)', fontSize: 11 }}
+                      value={item.dot}
+                      onChange={e => {
+                        const next = [...nowBuilding]
+                        next[i].dot = e.target.value
+                        setNowBuilding(next)
+                      }}
+                      placeholder="Color (Hex)"
+                    />
+                    <input
+                      style={{ flex: 1, background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 6, padding: '6px 8px', color: 'var(--text-primary)', fontSize: 11 }}
+                      value={item.text}
+                      onChange={e => {
+                        const next = [...nowBuilding]
+                        next[i].text = e.target.value
+                        setNowBuilding(next)
+                      }}
+                      placeholder="Text"
+                    />
+                    <button
+                      onClick={() => setNowBuilding(nowBuilding.filter((_, idx) => idx !== i))}
+                      style={{ background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, padding: '0 10px', fontSize: 10, cursor: 'pointer' }}
+                    >X</button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setNowBuilding([...nowBuilding, { text: 'New item', dot: '#3B82F6' }])}
+                  style={{ background: 'var(--bg-window)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', borderRadius: 6, padding: '6px 0', fontSize: 11, cursor: 'pointer' }}
+                >+ Add Item</button>
+              </div>
+            </div>
+
+            {/* Learning Log */}
+            <div style={{ background: 'var(--bg-window-alt)', padding: 16, borderRadius: 8, border: '1px solid var(--border-light)' }}>
+              <h3 style={{ fontSize: 14, fontFamily: 'var(--font-mono)', margin: '0 0 12px 0' }}>Learning Log</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {learningLog.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      style={{ flex: 1, background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 6, padding: '6px 8px', color: 'var(--text-primary)', fontSize: 11 }}
+                      value={item.name}
+                      onChange={e => {
+                        const next = [...learningLog]
+                        next[i].name = e.target.value
+                        setLearningLog(next)
+                      }}
+                      placeholder="Topic"
+                    />
+                    <input
+                      type="number"
+                      style={{ width: 60, background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 6, padding: '6px 8px', color: 'var(--text-primary)', fontSize: 11 }}
+                      value={item.pct}
+                      onChange={e => {
+                        const next = [...learningLog]
+                        next[i].pct = Math.min(100, Math.max(0, parseInt(e.target.value) || 0))
+                        setLearningLog(next)
+                      }}
+                      placeholder="%"
+                    />
+                    <input
+                      style={{ width: 80, background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 6, padding: '6px 8px', color: 'var(--text-primary)', fontSize: 11 }}
+                      value={item.color}
+                      onChange={e => {
+                        const next = [...learningLog]
+                        next[i].color = e.target.value
+                        setLearningLog(next)
+                      }}
+                      placeholder="Color"
+                    />
+                    <button
+                      onClick={() => setLearningLog(learningLog.filter((_, idx) => idx !== i))}
+                      style={{ background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, padding: '0 10px', fontSize: 10, cursor: 'pointer' }}
+                    >X</button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setLearningLog([...learningLog, { name: 'New topic', pct: 0, color: '#8B5CF6' }])}
+                  style={{ background: 'var(--bg-window)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', borderRadius: 6, padding: '6px 0', fontSize: 11, cursor: 'pointer' }}
+                >+ Add Topic</button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveSidebar}
+              style={{
+                background: 'var(--blue-primary)', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px',
+                fontSize: 12, fontFamily: 'var(--font-mono)', cursor: 'pointer', alignSelf: 'flex-start'
+              }}
+            >
+              Save Sidebar Widgets
+            </button>
           </div>
         )}
 
