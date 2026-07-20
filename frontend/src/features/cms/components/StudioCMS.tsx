@@ -888,7 +888,7 @@ export default function StudioCMS() {
                   </div>
                 ))}
                 <button
-                  onClick={() => setNowBuilding([...nowBuilding, { text: 'New item', dot: '#3B82F6' }])}
+                  onClick={() => setNowBuilding([...nowBuilding, { id: `nb_${Date.now()}`, text: 'New item', dot: '#3B82F6' }])}
                   style={{ background: 'var(--bg-window)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', borderRadius: 6, padding: '6px 0', fontSize: 11, cursor: 'pointer' }}
                 >+ Add Item</button>
               </div>
@@ -938,7 +938,7 @@ export default function StudioCMS() {
                   </div>
                 ))}
                 <button
-                  onClick={() => setLearningLog([...learningLog, { name: 'New topic', pct: 0, color: '#8B5CF6' }])}
+                  onClick={() => setLearningLog([...learningLog, { id: `learn_${Date.now()}`, name: 'New topic', pct: 0, color: '#8B5CF6' }])}
                   style={{ background: 'var(--bg-window)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', borderRadius: 6, padding: '6px 0', fontSize: 11, cursor: 'pointer' }}
                 >+ Add Topic</button>
               </div>
