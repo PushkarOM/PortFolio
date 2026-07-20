@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import BootScreen from '../features/desktop/components/BootScreen'
 import TopBar from '../features/desktop/components/TopBar'
 import DesktopIcons from '../features/desktop/components/DesktopIcons'
@@ -11,11 +11,39 @@ import ExperienceWindow from '../features/portfolio/components/ExperienceWindow'
 import SkillsWindow from '../features/portfolio/components/SkillsWindow'
 import ResumeWindow from '../features/portfolio/components/ResumeWindow'
 import ContactWindow from '../features/portfolio/components/ContactWindow'
-import StudioCMS from '../features/cms/components/StudioCMS'
 import WindowFrame from '../shared/components/WindowFrame'
 import { useWindowManager, WindowId } from '../context/WindowContext'
 
+// F3: Lazy-load StudioCMS — it's heavy and only needed when the user opens it
+const StudioCMS = lazy(() => import('../features/cms/components/StudioCMS'))
+
 type Theme = 'aurora' | 'midnight' | 'retro' | 'matrix'
+
+// F2: Lightweight in-app toast to replace browser alert()
+function showToast(message: string) {
+  const el = document.createElement('div')
+  el.textContent = message
+  Object.assign(el.style, {
+    position: 'fixed',
+    bottom: '90px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'rgba(30,35,51,0.95)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    color: '#e2e8f0',
+    fontFamily: 'var(--font-mono)',
+    fontSize: '12px',
+    padding: '8px 18px',
+    borderRadius: '8px',
+    zIndex: '99999',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+    pointerEvents: 'none',
+    transition: 'opacity 0.3s',
+  })
+  document.body.appendChild(el)
+  setTimeout(() => { el.style.opacity = '0' }, 1700)
+  setTimeout(() => document.body.removeChild(el), 2000)
+}
 
 export default function App() {
   const [bootDone, setBootDone] = useState(false)
@@ -39,6 +67,9 @@ export default function App() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // E8: stable callback reference — prevents BootScreen from re-rendering every render cycle
+  const handleBootComplete = useCallback(() => setBootDone(true), [])
 
   const handleThemeChange = (t: string) => {
     if (['aurora', 'midnight', 'retro', 'matrix'].includes(t)) {
@@ -72,9 +103,14 @@ export default function App() {
     }
   }
 
+  // F4: Derive open window IDs dynamically so BottomDock active dots reflect real state
+  const openWindowIds = new Set(
+    windows.filter(w => w.isOpen && !w.isMinimized).map(w => w.id)
+  )
+
   return (
     <>
-      <BootScreen onComplete={() => setBootDone(true)} />
+      <BootScreen onComplete={handleBootComplete} />
 
       {bootDone && (
         <div
@@ -112,7 +148,8 @@ export default function App() {
                   onOpen={(id) => {
                     const mappedId = id.toLowerCase()
                     if (mappedId === 'trash') {
-                      alert('Trash is empty!')
+                      // F2: replace browser alert() with in-app toast
+                      showToast('🗑️ Trash is empty!')
                     } else {
                       openWindow(mappedId as WindowId)
                     }
@@ -157,13 +194,14 @@ export default function App() {
             )}
           </div>
 
-          {/* Bottom Dock */}
+          {/* Bottom Dock — receives live open-window IDs for active dots (F4) */}
           <BottomDock
             onOpenTerminal={() => openWindow('terminal')}
             onOpenProjects={() => openWindow('projects')}
             onOpenContact={() => openWindow('contact')}
             onOpenResume={() => openWindow('resume')}
             onOpenSettings={() => openWindow('studio')}
+            openWindowIds={openWindowIds}
           />
 
           {/* Draggable Windows Overlay */}
@@ -193,7 +231,16 @@ export default function App() {
                   case 'terminal':
                     return <TerminalWindow onThemeChange={handleThemeChange} />
                   case 'studio':
-                    return <StudioCMS />
+                    // F3: StudioCMS is lazy-loaded — show a minimal spinner while the chunk loads
+                    return (
+                      <Suspense fallback={
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                          Loading Studio CMS...
+                        </div>
+                      }>
+                        <StudioCMS />
+                      </Suspense>
+                    )
                   default:
                     return null
                 }

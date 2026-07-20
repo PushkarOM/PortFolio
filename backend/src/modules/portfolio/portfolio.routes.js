@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import authMiddleware from '../../middleware/auth.middleware.js';
 import Project from './project.model.js';
 import Experience from './experience.model.js';
@@ -6,13 +7,22 @@ import Skill from './skill.model.js';
 
 const router = express.Router();
 
+// Shared error handler: distinguishes client validation errors (400) from server errors (500)
+function handleError(res, err, fallbackMessage) {
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ message: err.message });
+  }
+  console.error(fallbackMessage, err);
+  res.status(500).json({ message: fallbackMessage });
+}
+
 // -- PROJECTS ROUTES --
 router.get('/projects', async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: 1 });
     res.json(projects);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching projects' });
+    handleError(res, err, 'Error fetching projects');
   }
 });
 
@@ -42,7 +52,7 @@ router.post('/projects', authMiddleware, async (req, res) => {
       res.status(201).json(project);
     }
   } catch (err) {
-    res.status(500).json({ message: 'Error saving project' });
+    handleError(res, err, 'Error saving project');
   }
 });
 
@@ -52,7 +62,7 @@ router.delete('/projects/:id', authMiddleware, async (req, res) => {
     if (!result) return res.status(404).json({ message: 'Project not found' });
     res.json({ message: 'Project deleted successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting project' });
+    handleError(res, err, 'Error deleting project');
   }
 });
 
@@ -62,7 +72,7 @@ router.get('/experience', async (req, res) => {
     const experiences = await Experience.find().sort({ createdAt: 1 });
     res.json(experiences);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching experience' });
+    handleError(res, err, 'Error fetching experience');
   }
 });
 
@@ -88,7 +98,7 @@ router.post('/experience', authMiddleware, async (req, res) => {
       res.status(201).json(exp);
     }
   } catch (err) {
-    res.status(500).json({ message: 'Error saving experience' });
+    handleError(res, err, 'Error saving experience');
   }
 });
 
@@ -98,7 +108,7 @@ router.delete('/experience/:id', authMiddleware, async (req, res) => {
     if (!result) return res.status(404).json({ message: 'Experience not found' });
     res.json({ message: 'Experience deleted successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting experience' });
+    handleError(res, err, 'Error deleting experience');
   }
 });
 
@@ -108,21 +118,30 @@ router.get('/skills', async (req, res) => {
     const skills = await Skill.find().sort({ createdAt: 1 });
     res.json(skills);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching skills' });
+    handleError(res, err, 'Error fetching skills');
   }
 });
 
+// Replace-all save, wrapped in a transaction so a failed insertMany can't
+// leave the collection wiped (see audit Issue 6).
 router.post('/skills', authMiddleware, async (req, res) => {
   const skillsList = req.body;
   if (!Array.isArray(skillsList)) {
     return res.status(400).json({ message: 'Expected array of skill categories' });
   }
+
+  const session = await mongoose.startSession();
   try {
-    await Skill.deleteMany({});
-    const saved = await Skill.insertMany(skillsList);
+    session.startTransaction();
+    await Skill.deleteMany({}, { session });
+    const saved = await Skill.insertMany(skillsList, { session });
+    await session.commitTransaction();
     res.json(saved);
   } catch (err) {
-    res.status(500).json({ message: 'Error saving skills' });
+    await session.abortTransaction();
+    handleError(res, err, 'Error saving skills');
+  } finally {
+    session.endSession();
   }
 });
 

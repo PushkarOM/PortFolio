@@ -36,6 +36,17 @@ function Clock() {
 export default function TopBar({ activeSection, onSectionChange, theme, onThemeChange }: Props) {
   const [themeOpen, setThemeOpen] = useState(false)
 
+  // Close theme dropdown on outside click (Issue 20)
+  useEffect(() => {
+    if (!themeOpen) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-theme-picker]')) setThemeOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [themeOpen])
+
   return (
     <div style={{
       background: 'var(--bg-topbar)',
@@ -125,7 +136,7 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
         </div>
 
         {/* Theme toggle */}
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }} data-theme-picker>
           <button
             onClick={() => setThemeOpen(o => !o)}
             style={{

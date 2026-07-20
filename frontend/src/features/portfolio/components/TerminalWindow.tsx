@@ -31,12 +31,10 @@ const COMMAND_LIST = [
   'whoami',
   'home',
   'projects',
-  'project emotionsense',
   'project reposage',
-  'project frostdetect',
-  'project rlportfolio',
-  'project traffic',
-  'project smartquiz',
+  'project skillswap',
+  'project emotionsense',
+  'project offline-hindi-assistant',
   'skills',
   'experience',
   'resume',
@@ -66,6 +64,7 @@ export default function TerminalWindow({ onThemeChange }: Props) {
     { type: 'output', content: '' },
   ])
   const [input, setInput] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
   const [history, setHistory] = useState<string[]>([])
   const [historyIdx, setHistoryIdx] = useState(-1)
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -73,6 +72,17 @@ export default function TerminalWindow({ onThemeChange }: Props) {
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // Refs for ask-stream cleanup on unmount (Issue E1)
+  const streamTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Cleanup stream timers on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current)
+      if (streamIntervalRef.current) clearInterval(streamIntervalRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -250,10 +260,8 @@ export default function TerminalWindow({ onThemeChange }: Props) {
             Memory: 16GB RAM` })
     } else if (lowerCmd === 'coffee') {
       try {
-        const current = await portfolioApi.getCoffeeCount()
-        const next = current + 1
-        await portfolioApi.saveCoffeeCount(next)
-        newLines.push({ type: 'success', content: `☕ Successfully brewed a fresh cup of coffee! Total brewed today: ${next}` })
+        const newCount = await portfolioApi.saveCoffeeCount()
+        newLines.push({ type: 'success', content: `☕ Successfully brewed a fresh cup of coffee! Total brewed today: ${newCount}` })
       } catch (err) {
         newLines.push({ type: 'error', content: 'Failed to brew coffee.' })
       }
@@ -261,15 +269,15 @@ export default function TerminalWindow({ onThemeChange }: Props) {
       const question = trimmed.slice(4)
       setLines(prev => [...prev, ...newLines, { type: 'info', content: '🤖 AI Assistant is thinking...' }])
       setInput('')
+      setIsStreaming(true)
 
-      // Simulated stream logic
+      // Simulated stream logic with ref-based cleanup (Issues E1, E4)
       try {
         const projects = await portfolioApi.getProjects()
         const skills = await portfolioApi.getSkills()
 
-        setTimeout(() => {
+        streamTimeoutRef.current = setTimeout(() => {
           const answer = getMockAIAnswer(question, projects, skills)
-          // Stream text word by word
           const words = answer.split(' ')
           let currentText = ''
           let wordIdx = 0
@@ -281,12 +289,11 @@ export default function TerminalWindow({ onThemeChange }: Props) {
             return next
           })
 
-          const interval = setInterval(() => {
+          streamIntervalRef.current = setInterval(() => {
             if (wordIdx < words.length) {
               currentText += (wordIdx === 0 ? '' : ' ') + words[wordIdx]
               setLines(prev => {
                 const next = [...prev]
-                // Check if we need to append or update line
                 const lastLine = next[next.length - 1]
                 if (lastLine.type === 'output') {
                   next[next.length - 1] = { type: 'output', content: currentText }
@@ -297,12 +304,14 @@ export default function TerminalWindow({ onThemeChange }: Props) {
               })
               wordIdx++
             } else {
-              clearInterval(interval)
+              if (streamIntervalRef.current) clearInterval(streamIntervalRef.current)
+              setIsStreaming(false)
             }
           }, 80)
         }, 800)
       } catch (err) {
         setLines(prev => [...prev, { type: 'error', content: 'Failed to fetch context for AI assistant.' }])
+        setIsStreaming(false)
       }
 
       setHistory(prev => [cmd, ...prev.slice(0, 49)])
@@ -376,7 +385,7 @@ export default function TerminalWindow({ onThemeChange }: Props) {
     }
 
     if (query.includes('experience') || query.includes('job') || query.includes('intern')) {
-      return `Pushkar has worked as an ML Engineer Intern at TechCorp AI Labs, where he optimized RAG latency by 40% and deployed models using FastAPI and Docker. He also worked as a Full-Stack Intern building REST endpoints serving thousands of users using Next.js, Node.js, and PostgreSQL.`
+      return `Pushkar interned as a Data & Backend Engineering Intern at Inventlix (Remote, May–Jul 2025), where he built RESTful CRUD APIs with Django and React, implemented JWT + Google OAuth auth with RBAC, and integrated Google Cloud Storage and SendGrid for transactional emails with cron-based expiry notifications.`
     }
 
     if (query.includes('who') || query.includes('about') || query.includes('pushkar')) {
@@ -430,6 +439,8 @@ export default function TerminalWindow({ onThemeChange }: Props) {
             onKeyDown={handleKey}
             autoComplete="off"
             spellCheck={false}
+            disabled={isStreaming}
+            style={{ opacity: isStreaming ? 0.5 : 1 }}
           />
           <span className="cursor-blink" style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--text-terminal)' }}>█</span>
         </div>

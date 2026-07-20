@@ -10,7 +10,9 @@ const app = express();
 
 // Middleware
 app.set('trust proxy', 1); // For Vercel Edge proxies
-app.use(cors());
+// Restrict to FRONTEND_URL when set; falls back to open (matches prior behavior)
+// since frontend/backend are served from the same Vercel domain today.
+app.use(cors(process.env.FRONTEND_URL ? { origin: process.env.FRONTEND_URL } : {}));
 app.use(express.json());
 
 // API Routes

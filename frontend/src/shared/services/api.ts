@@ -23,9 +23,6 @@ const setStorageItem = <T>(key: string, value: T): void => {
   }
 }
 
-// Check if we are running in backend-connected mode
-let isBackendOnline = false;
-
 // HTTP Request helper
 const request = async (url: string, options: RequestInit = {}) => {
   const token = sessionStorage.getItem('pushkaros_jwt_token');
@@ -45,14 +42,9 @@ const request = async (url: string, options: RequestInit = {}) => {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.message || `HTTP error ${res.status}`);
     }
-    isBackendOnline = true;
     return await res.json();
   } catch (err) {
     console.warn(`Backend request failed for ${url}:`, err);
-    // If connection was refused or offline, assume backend is offline
-    if (err instanceof TypeError && err.message.includes('fetch')) {
-      isBackendOnline = false;
-    }
     throw err;
   }
 };
@@ -64,7 +56,8 @@ export const portfolioApi = {
            !!sessionStorage.getItem('pushkaros_jwt_token');
   },
 
-  // Log in
+  // Log in — only fall back to local auth on genuine network failure (TypeError),
+  // not on real rejections like 401 from a reachable backend.
   login: async (password: string): Promise<boolean> => {
     try {
       const data = await request('/api/auth/login', {
@@ -79,9 +72,10 @@ export const portfolioApi = {
       }
       return false;
     } catch (err) {
-      // Local fallback auth
-      const localPassword = getStorageItem('pushkaros_cms_password', 'pushkar123');
-      if (password === localPassword) {
+      // Only fall back to local auth on genuine network failure, not a real rejection.
+      if (!(err instanceof TypeError)) throw err;
+      const localPassword = getStorageItem('pushkaros_cms_password', '');
+      if (localPassword && password === localPassword) {
         sessionStorage.setItem('pushkaros_cms_authenticated', 'true');
         window.dispatchEvent(new Event('pushkaros-data-change'));
         return true;
@@ -98,7 +92,7 @@ export const portfolioApi = {
     window.dispatchEvent(new Event('pushkaros-auth-logout'));
   },
 
-  // Change password
+  // Change password — only fall back to local on genuine network failure.
   changePassword: async (oldPassword: string, newPassword: string): Promise<boolean> => {
     try {
       await request('/api/auth/change-password', {
@@ -107,9 +101,10 @@ export const portfolioApi = {
       });
       return true;
     } catch (err) {
-      // Local fallback
-      const localPassword = getStorageItem('pushkaros_cms_password', 'pushkar123');
-      if (oldPassword === localPassword) {
+      // Only fall back to local on genuine network failure, not a real rejection.
+      if (!(err instanceof TypeError)) throw err;
+      const localPassword = getStorageItem('pushkaros_cms_password', '');
+      if (localPassword && oldPassword === localPassword) {
         setStorageItem('pushkaros_cms_password', newPassword);
         return true;
       }
@@ -121,7 +116,6 @@ export const portfolioApi = {
   getProjects: async (): Promise<Project[]> => {
     try {
       const data = await request('/api/projects');
-      isBackendOnline = true;
       return data;
     } catch (err) {
       return getStorageItem('pushkaros_projects', DEFAULT_PROJECTS);
@@ -166,7 +160,6 @@ export const portfolioApi = {
   getExperiences: async (): Promise<Experience[]> => {
     try {
       const data = await request('/api/experience');
-      isBackendOnline = true;
       return data;
     } catch (err) {
       return getStorageItem('pushkaros_experiences', DEFAULT_EXPERIENCES);
@@ -211,7 +204,6 @@ export const portfolioApi = {
   getSkills: async (): Promise<SkillCategory[]> => {
     try {
       const data = await request('/api/skills');
-      isBackendOnline = true;
       return data;
     } catch (err) {
       return getStorageItem('pushkaros_skills', DEFAULT_SKILLS);
@@ -235,7 +227,6 @@ export const portfolioApi = {
   getStatusText: async (): Promise<string> => {
     try {
       const data = await request('/api/settings');
-      isBackendOnline = true;
       return data.statusText || 'Building RepoSage v2.0';
     } catch (err) {
       return getStorageItem('pushkaros_status_text', 'Building RepoSage v2.0');
@@ -255,15 +246,11 @@ export const portfolioApi = {
     }
   },
 
+  // Coffee count — uses the new public /coffee-count route (no auth required).
   getCoffeeCount: async (): Promise<number> => {
     try {
-      const data = await request('/api/settings');
-      isBackendOnline = true;
-      const today = new Date().toDateString();
-      if (data.coffeeDate !== today) {
-        return 0;
-      }
-      return data.coffeeCount !== undefined ? data.coffeeCount : 0;
+      const data = await request('/api/settings/coffee-count');
+      return data.count ?? 0;
     } catch (err) {
       const today = new Date().toDateString();
       if (getStorageItem('pushkaros_coffee_date', '') !== today) {
@@ -273,36 +260,43 @@ export const portfolioApi = {
     }
   },
 
-  saveCoffeeCount: async (count: number): Promise<void> => {
+  saveCoffeeCount: async (): Promise<number> => {
     try {
-      const today = new Date().toDateString();
-      await request('/api/settings', {
-        method: 'POST',
-        body: JSON.stringify({ coffeeCount: count, coffeeDate: today })
-      });
-      window.dispatchEvent(new Event('pushkaros-data-change'));
+      // POST to the public atomic-increment endpoint — no auth required.
+      const data = await request('/api/settings/coffee-count', { method: 'POST' });
+      return data.count ?? 0;
     } catch (err) {
-      if (!(err instanceof TypeError)) throw err;
+      // Offline fallback: increment locally.
       const today = new Date().toDateString();
-      setStorageItem('pushkaros_coffee_count', count);
+      const savedDate = getStorageItem('pushkaros_coffee_date', '');
+      const current = savedDate === today ? getStorageItem('pushkaros_coffee_count', 0) : 0;
+      const next = current + 1;
+      setStorageItem('pushkaros_coffee_count', next);
       setStorageItem('pushkaros_coffee_date', today);
+      return next;
     }
   },
 
-  getGithubStats: async (): Promise<{ repos: number, stars: number, streak: string, prs: number }> => {
+  // GitHub stats — prs may be null when the search API fails.
+  getGithubStats: async (): Promise<{ repos: number; stars: number; streak: string; prs: number | null }> => {
     try {
       const data = await request('/api/github');
       return data;
     } catch (err) {
-      return { repos: 42, stars: 180, streak: '28d', prs: 76 };
+      return { repos: 42, stars: 180, streak: '28d', prs: null };
     }
   },
 
+  // NowBuilding — stored as a native array in MongoDB (Mixed type), no JSON.stringify needed.
   getNowBuilding: async (): Promise<NowBuildingItem[]> => {
     try {
       const data = await request('/api/settings');
-      if (data.nowBuilding) {
-        return JSON.parse(data.nowBuilding);
+      if (Array.isArray(data.nowBuilding)) {
+        return data.nowBuilding as NowBuildingItem[];
+      }
+      // Legacy: old data may have been JSON.stringify'd — try to parse it gracefully.
+      if (typeof data.nowBuilding === 'string') {
+        try { return JSON.parse(data.nowBuilding); } catch { /* fall through */ }
       }
       return getStorageItem('pushkaros_now_building', DEFAULT_NOW_BUILDING);
     } catch (err) {
@@ -312,9 +306,10 @@ export const portfolioApi = {
 
   saveNowBuilding: async (items: NowBuildingItem[]): Promise<void> => {
     try {
+      // Store as a native array — MongoDB Mixed type handles this without JSON.stringify.
       await request('/api/settings', {
         method: 'POST',
-        body: JSON.stringify({ nowBuilding: JSON.stringify(items) })
+        body: JSON.stringify({ nowBuilding: items })
       });
       window.dispatchEvent(new Event('pushkaros-data-change'));
     } catch (err) {
@@ -323,11 +318,16 @@ export const portfolioApi = {
     }
   },
 
+  // LearningLog — stored as a native array in MongoDB (Mixed type), no JSON.stringify needed.
   getLearningLog: async (): Promise<LearningItem[]> => {
     try {
       const data = await request('/api/settings');
-      if (data.learningLog) {
-        return JSON.parse(data.learningLog);
+      if (Array.isArray(data.learningLog)) {
+        return data.learningLog as LearningItem[];
+      }
+      // Legacy: old data may have been JSON.stringify'd — try to parse it gracefully.
+      if (typeof data.learningLog === 'string') {
+        try { return JSON.parse(data.learningLog); } catch { /* fall through */ }
       }
       return getStorageItem('pushkaros_learning_log', DEFAULT_LEARNING);
     } catch (err) {
@@ -337,9 +337,10 @@ export const portfolioApi = {
 
   saveLearningLog: async (items: LearningItem[]): Promise<void> => {
     try {
+      // Store as a native array — MongoDB Mixed type handles this without JSON.stringify.
       await request('/api/settings', {
         method: 'POST',
-        body: JSON.stringify({ learningLog: JSON.stringify(items) })
+        body: JSON.stringify({ learningLog: items })
       });
       window.dispatchEvent(new Event('pushkaros-data-change'));
     } catch (err) {
@@ -356,4 +357,3 @@ export const portfolioApi = {
     });
   }
 }
-

@@ -150,30 +150,37 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   }
 
   const closeWindow = (id: WindowId) => {
-    setWindows(prev => prev.map(w => (w.id === id ? { ...w, isOpen: false } : w)))
-    if (activeWindowId === id) {
-      // Find the next highest Z-indexed open window to activate
-      const openWins = windows.filter(w => w.id !== id && w.isOpen && !w.isMinimized)
-      if (openWins.length > 0) {
-        const highest = openWins.reduce((max, w) => (w.zIndex > max.zIndex ? w : max), openWins[0])
-        setActiveWindowId(highest.id)
-      } else {
-        setActiveWindowId(null)
+    setWindows(prev => {
+      const updated = prev.map(w => (w.id === id ? { ...w, isOpen: false } : w))
+      if (activeWindowId === id) {
+        // Compute next-to-focus from the same prev snapshot (avoids stale closure)
+        const openWins = prev.filter(w => w.id !== id && w.isOpen && !w.isMinimized)
+        if (openWins.length > 0) {
+          const highest = openWins.reduce((max, w) => (w.zIndex > max.zIndex ? w : max), openWins[0])
+          setActiveWindowId(highest.id)
+        } else {
+          setActiveWindowId(null)
+        }
       }
-    }
+      return updated
+    })
   }
 
   const minimizeWindow = (id: WindowId) => {
-    setWindows(prev => prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w)))
-    if (activeWindowId === id) {
-      const openWins = windows.filter(w => w.id !== id && w.isOpen && !w.isMinimized)
-      if (openWins.length > 0) {
-        const highest = openWins.reduce((max, w) => (w.zIndex > max.zIndex ? w : max), openWins[0])
-        setActiveWindowId(highest.id)
-      } else {
-        setActiveWindowId(null)
+    setWindows(prev => {
+      const updated = prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w))
+      if (activeWindowId === id) {
+        // Compute next-to-focus from the same prev snapshot (avoids stale closure)
+        const openWins = prev.filter(w => w.id !== id && w.isOpen && !w.isMinimized)
+        if (openWins.length > 0) {
+          const highest = openWins.reduce((max, w) => (w.zIndex > max.zIndex ? w : max), openWins[0])
+          setActiveWindowId(highest.id)
+        } else {
+          setActiveWindowId(null)
+        }
       }
-    }
+      return updated
+    })
   }
 
   const maximizeWindow = (id: WindowId) => {
