@@ -23,6 +23,11 @@ export default function StudioCMS() {
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
 
+  // Local string buffers for Tech Stack inputs — lets users type commas and spaces
+  // without the split/trim/filter onChange clobbering the field mid-keystroke.
+  const [projectStackText, setProjectStackText] = useState('')
+  const [experienceStackText, setExperienceStackText] = useState('')
+
   // Password change state
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -166,6 +171,7 @@ export default function StudioCMS() {
   }
 
   const handleStartNewProject = () => {
+    setProjectStackText('')
     setEditingProject({
       id: `proj_${Date.now()}`,
       name: '',
@@ -206,6 +212,7 @@ export default function StudioCMS() {
   }
 
   const handleStartNewExperience = () => {
+    setExperienceStackText('')
     setEditingExperience({
       id: `exp_${Date.now()}`,
       role: '',
@@ -484,7 +491,7 @@ export default function StudioCMS() {
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button
-                          onClick={() => setEditingProject(proj)}
+                          onClick={() => { setProjectStackText(proj.stack.join(', ')); setEditingProject(proj) }}
                           style={{
                             background: 'none',
                             border: '1px solid var(--border-window)',
@@ -589,8 +596,12 @@ export default function StudioCMS() {
                     <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Tech Stack (comma separated)</label>
                     <input
                       style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                      value={editingProject.stack.join(', ')}
-                      onChange={e => setEditingProject({ ...editingProject, stack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                      value={projectStackText}
+                      onChange={e => {
+                        setProjectStackText(e.target.value)
+                        const parsed = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                        setEditingProject(prev => prev ? { ...prev, stack: parsed } : null)
+                      }}
                     />
                   </div>
                 </div>
@@ -673,7 +684,7 @@ export default function StudioCMS() {
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button
-                          onClick={() => setEditingExperience(exp)}
+                          onClick={() => { setExperienceStackText(exp.stack.join(', ')); setEditingExperience(exp) }}
                           style={{
                             background: 'none',
                             border: '1px solid var(--border-window)',
@@ -746,8 +757,12 @@ export default function StudioCMS() {
                     <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Tech Stack (comma separated)</label>
                     <input
                       style={{ width: '100%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 6, padding: 8, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                      value={editingExperience.stack.join(', ')}
-                      onChange={e => setEditingExperience({ ...editingExperience, stack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                      value={experienceStackText}
+                      onChange={e => {
+                        setExperienceStackText(e.target.value)
+                        const parsed = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                        setEditingExperience(prev => prev ? { ...prev, stack: parsed } : null)
+                      }}
                     />
                   </div>
                 </div>
