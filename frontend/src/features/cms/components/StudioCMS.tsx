@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { portfolioApi, Project, Experience, SkillCategory, NowBuildingItem, LearningItem } from '../../../shared/services/api'
 
 export default function StudioCMS() {
@@ -27,6 +27,12 @@ export default function StudioCMS() {
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [passwordMessage, setPasswordMessage] = useState('')
+
+  // Timer refs for triggerSaveIndicator cleanup (Issue E6)
+  const saveTimer1Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const saveTimer2Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Debounce ref for skills onChange (Issue F1)
+  const skillsDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Load initial data
   const loadData = async () => {
@@ -67,6 +73,10 @@ export default function StudioCMS() {
     return () => {
       window.removeEventListener('pushkaros-data-change', loadData)
       window.removeEventListener('pushkaros-auth-logout', handleAuthLogout)
+      // Cleanup save indicator timers on unmount (Issue E6)
+      if (saveTimer1Ref.current) clearTimeout(saveTimer1Ref.current)
+      if (saveTimer2Ref.current) clearTimeout(saveTimer2Ref.current)
+      if (skillsDebounceRef.current) clearTimeout(skillsDebounceRef.current)
     }
   }, [])
 
@@ -116,26 +126,28 @@ export default function StudioCMS() {
     }
   }
 
-  const triggerSaveIndicator = () => {
+  const triggerSaveIndicator = useCallback(() => {
+    // Clear any in-flight timers before starting new ones (Issue E6)
+    if (saveTimer1Ref.current) clearTimeout(saveTimer1Ref.current)
+    if (saveTimer2Ref.current) clearTimeout(saveTimer2Ref.current)
     setSaving(true)
     setSaveStatus('idle')
-    setTimeout(() => {
+    saveTimer1Ref.current = setTimeout(() => {
       setSaving(false)
       setSaveStatus('saved')
-      setTimeout(() => setSaveStatus('idle'), 1500)
+      saveTimer2Ref.current = setTimeout(() => setSaveStatus('idle'), 1500)
     }, 400)
-  }
+  }, [])
 
   // Project handlers
   const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingProject) return
-
     try {
       await portfolioApi.saveProject(editingProject)
       setEditingProject(null)
       triggerSaveIndicator()
-      loadData()
+      // No manual loadData() call needed — saveProject fires pushkaros-data-change
     } catch (err) {
       console.error(err)
     }
@@ -146,7 +158,7 @@ export default function StudioCMS() {
       try {
         await portfolioApi.deleteProject(id)
         triggerSaveIndicator()
-        loadData()
+        // No manual loadData() call needed — deleteProject fires pushkaros-data-change
       } catch (err) {
         console.error(err)
       }
@@ -171,12 +183,11 @@ export default function StudioCMS() {
   const handleSaveExperience = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingExperience) return
-
     try {
       await portfolioApi.saveExperience(editingExperience)
       setEditingExperience(null)
       triggerSaveIndicator()
-      loadData()
+      // No manual loadData() call needed
     } catch (err) {
       console.error(err)
     }
@@ -187,7 +198,7 @@ export default function StudioCMS() {
       try {
         await portfolioApi.deleteExperience(id)
         triggerSaveIndicator()
-        loadData()
+        // No manual loadData() call needed
       } catch (err) {
         console.error(err)
       }
@@ -212,7 +223,7 @@ export default function StudioCMS() {
       await portfolioApi.saveNowBuilding(nowBuilding)
       await portfolioApi.saveLearningLog(learningLog)
       triggerSaveIndicator()
-      loadData()
+      // No manual loadData() call needed
     } catch (err) {
       console.error(err)
     }
@@ -221,9 +232,9 @@ export default function StudioCMS() {
   const handleSaveSettings = async () => {
     try {
       await portfolioApi.saveStatusText(statusText)
-      await portfolioApi.saveCoffeeCount(coffeeCount)
+      // coffeeCount is managed atomically via /coffee-count — no pass-through needed
       triggerSaveIndicator()
-      loadData()
+      // No manual loadData() call needed
     } catch (err) {
       console.error(err)
     }
@@ -815,10 +826,18 @@ export default function StudioCMS() {
                           value={s.level}
                           onChange={e => {
                             const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0))
-                            const next = [...skills]
+                            // Deep-copy so React detects the state change (Issue F1)
+                            const next = skills.map(c => ({
+                              ...c,
+                              skills: c.skills.map(sk => ({ ...sk }))
+                            }))
                             next[catIdx].skills[sIdx].level = val
                             setSkills(next)
-                            portfolioApi.saveSkills(next)
+                            // Debounce the API save to avoid hammering on every keystroke (Issue F1)
+                            if (skillsDebounceRef.current) clearTimeout(skillsDebounceRef.current)
+                            skillsDebounceRef.current = setTimeout(() => {
+                              portfolioApi.saveSkills(next).catch(console.error)
+                            }, 500)
                           }}
                         />
                         <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>%</span>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { motion, useDragControls } from 'framer-motion'
+import React, { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { useWindowManager, WindowId } from '../../context/WindowContext'
 
 interface WindowFrameProps {
@@ -48,6 +48,8 @@ export default function WindowFrame({
 
   const isDraggingRef = React.useRef(false)
   const posRef = React.useRef({ x, y })
+  // Tracks live resize dimensions so handleMouseUp reads the final size, not stale useState
+  const sizeRef = useRef({ width: localWidth, height: localHeight })
 
   // Sync size changes from CMS / Context
   useEffect(() => {
@@ -126,6 +128,7 @@ export default function WindowFrame({
       const deltaY = moveEvent.clientY - startY
       const newWidth = Math.max(320, startWidth + deltaX)
       const newHeight = Math.max(240, startHeight + deltaY)
+      sizeRef.current = { width: newWidth, height: newHeight }
       setLocalWidth(newWidth)
       setLocalHeight(newHeight)
     };
@@ -133,8 +136,8 @@ export default function WindowFrame({
     const handleMouseUp = () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
-      // Save final size to global context
-      updateWindowSize(id, localWidth, localHeight)
+      // Read from ref so we get the actual final size, not the stale useState closure value
+      updateWindowSize(id, sizeRef.current.width, sizeRef.current.height)
     };
 
     document.addEventListener('mousemove', handleMouseMove)

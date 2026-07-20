@@ -30,15 +30,17 @@ export interface SkillCategory {
   skills: { name: string; level: number }[]
 }
 
+// Runtime shape used by SideWidgets.tsx (item.dot, item.text) and StudioCMS.tsx
 export interface NowBuildingItem {
   id: string
-  title: string
-  color: string
+  text: string
+  dot: string
 }
 
+// Runtime shape used by SideWidgets.tsx (item.name, item.pct) and StudioCMS.tsx
 export interface LearningItem {
   id: string
-  title: string
-  progress: number
+  name: string
+  pct: number
   color: string
 }

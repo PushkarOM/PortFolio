@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { portfolioApi, NowBuildingItem, LearningItem } from '../../../shared/services/api'
 
 function WidgetShell({ title, children, accent = '#3B82F6' }: {
@@ -107,7 +107,10 @@ function NowBuilding() {
 }
 
 function GitHubStats() {
-  const [stats, setStats] = useState({ repos: 42, stars: 180, streak: '28d', prs: 76 })
+  // prs is nullable — backend no longer fakes 76 on failure
+  const [stats, setStats] = useState<{ repos: number; stars: number; streak: string; prs: number | null }>({
+    repos: 42, stars: 180, streak: '28d', prs: null
+  })
 
   useEffect(() => {
     portfolioApi.getGithubStats().then(setStats).catch(console.error)
@@ -117,7 +120,8 @@ function GitHubStats() {
     { label: 'Repos', value: stats.repos.toString(), color: '#3B82F6' },
     { label: 'Stars', value: stats.stars.toString(), color: '#F59E0B' },
     { label: 'Streak', value: stats.streak, color: '#34D399' },
-    { label: 'PRs', value: stats.prs.toString(), color: '#8B5CF6' },
+    // Render '—' when prs is null (GitHub search API failed) rather than showing a stale/fake number
+    { label: 'PRs', value: stats.prs !== null ? stats.prs.toString() : '—', color: '#8B5CF6' },
   ]
   return (
     <WidgetShell title="github_stats.json" accent="#F59E0B">
@@ -175,46 +179,54 @@ function CurrentlyLearning() {
 
 function TeaCounter() {
   const [count, setCount] = useState(0)
+  // mounted ref guards against setState on unmounted component (Issue 13)
+  const mountedRef = useRef(true)
 
   const loadTea = async () => {
     try {
       const val = await portfolioApi.getCoffeeCount()
-      setCount(val)
+      if (mountedRef.current) setCount(val)
     } catch (e) {
       console.error(e)
     }
   }
 
   useEffect(() => {
+    mountedRef.current = true
+
     const handleVisit = async () => {
       try {
-        const today = new Date().toDateString();
-        const lastVisit = localStorage.getItem('pushkaros_last_visit');
-        
-        const currentCount = await portfolioApi.getCoffeeCount();
-        
+        const today = new Date().toDateString()
+        const lastVisit = localStorage.getItem('pushkaros_last_visit')
+
         if (lastVisit !== today) {
-          localStorage.setItem('pushkaros_last_visit', today);
-          await portfolioApi.saveCoffeeCount(currentCount + 1);
+          // First visit of the day: increment on the server atomically
+          localStorage.setItem('pushkaros_last_visit', today)
+          const newCount = await portfolioApi.saveCoffeeCount()
+          if (mountedRef.current) setCount(newCount)
         } else {
-          setCount(currentCount);
+          // Returning visit: just read the current count
+          const currentCount = await portfolioApi.getCoffeeCount()
+          if (mountedRef.current) setCount(currentCount)
         }
       } catch (e) {
-        console.error(e);
+        console.error(e)
       }
-    };
+    }
 
-    handleVisit();
+    handleVisit()
 
     window.addEventListener('pushkaros-data-change', loadTea)
-    return () => window.removeEventListener('pushkaros-data-change', loadTea)
+    return () => {
+      mountedRef.current = false
+      window.removeEventListener('pushkaros-data-change', loadTea)
+    }
   }, [])
 
   const handleBrew = async () => {
-    const next = count + 1
     try {
-      await portfolioApi.saveCoffeeCount(next)
-      setCount(next)
+      const newCount = await portfolioApi.saveCoffeeCount()
+      if (mountedRef.current) setCount(newCount)
     } catch (e) {
       console.error(e)
     }

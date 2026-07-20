@@ -14,6 +14,7 @@ interface Props {
   onOpenContact: () => void
   onOpenResume: () => void
   onOpenSettings: () => void
+  openWindowIds: Set<string>
 }
 
 function GitHubIcon() {
@@ -76,7 +77,7 @@ function ResumeIcon() {
   )
 }
 
-export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings }: Props) {
+export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings, openWindowIds }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   const items: DockItem[] = [
@@ -167,12 +168,12 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
               >
                 {item.icon}
               </button>
-              {/* Active dot */}
+              {/* Active dot — reflects real open-window state */}
               <div style={{
                 width: 3, height: 3, borderRadius: '50%',
                 background: 'var(--blue-primary)',
                 marginTop: 2,
-                opacity: item.id === 'terminal' || item.id === 'projects' ? 1 : 0,
+                opacity: openWindowIds.has(item.id) ? 1 : 0,
               }} />
             </div>
           )
