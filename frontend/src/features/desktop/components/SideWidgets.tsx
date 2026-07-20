@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { portfolioApi, NowBuildingItem, LearningItem } from '../../../shared/services/api'
 
-function WidgetShell({ title, children, accent = '#3B82F6' }: {
+function WidgetShell({ title, children, accent = '#3B82F6', className, style }: {
   title: string
   children: React.ReactNode
   accent?: string
+  className?: string
+  style?: React.CSSProperties
 }) {
   return (
-    <div className="window" style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+    <div className={`window widget-slide-in ${className || ''}`} style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column', ...style }}>
       <div style={{
         background: 'var(--bg-topbar)',
         padding: '6px 12px',
@@ -49,12 +51,23 @@ function Neofetch() {
   ]
 
   return (
-    <WidgetShell title="system_info.sys" accent="#34D399">
+    <WidgetShell title="system_info.sys" accent="#34D399" style={{ animationDelay: '0ms' }}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         {/* ASCII art mini */}
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--blue-sky)', lineHeight: 1.3, flexShrink: 0 }}>
-          {`  /\\_/\\  \n ( o.o ) \n  > ^ <  `}
-        </div>
+       <div
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 8,
+          color: 'var(--blue-sky)',
+          lineHeight: 1.3,
+          flexShrink: 0,
+          whiteSpace: 'pre',
+        }}
+      >
+      {`  /\\_/\\\\
+ ( o.o )
+  > ^ <`}
+      </div>
         <div style={{ flex: 1 }}>
           {rows.map(r => (
             <div key={r.key} style={{ display: 'flex', gap: 6, marginBottom: 2 }}>
@@ -95,7 +108,7 @@ function NowBuilding() {
   if (items.length === 0) return null
 
   return (
-    <WidgetShell title="now_building.md" accent="#3B82F6">
+    <WidgetShell title="now_building.md" accent="#3B82F6" style={{ animationDelay: '80ms' }}>
       {items.map((item, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
           <div style={{ width: 5, height: 5, borderRadius: '50%', background: item.dot, flexShrink: 0 }} />
@@ -124,7 +137,7 @@ function GitHubStats() {
     { label: 'PRs', value: stats.prs !== null ? stats.prs.toString() : '—', color: '#8B5CF6' },
   ]
   return (
-    <WidgetShell title="github_stats.json" accent="#F59E0B">
+    <WidgetShell title="github_stats.json" accent="#F59E0B" style={{ animationDelay: '160ms' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {displayStats.map(s => (
           <div key={s.label} style={{
@@ -161,7 +174,7 @@ function CurrentlyLearning() {
 
   if (items.length === 0) return null
   return (
-    <WidgetShell title="learning.log" accent="#8B5CF6">
+    <WidgetShell title="learning.log" accent="#8B5CF6" style={{ animationDelay: '240ms' }}>
       {items.map(item => (
         <div key={item.name} style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
@@ -177,7 +190,7 @@ function CurrentlyLearning() {
   )
 }
 
-function TeaCounter() {
+function CoffeeCounter() {
   const [count, setCount] = useState(0)
   // mounted ref guards against setState on unmounted component (Issue 13)
   const mountedRef = useRef(true)
@@ -233,21 +246,21 @@ function TeaCounter() {
   }
 
   return (
-    <WidgetShell title="tea.sh" accent="#10B981">
+    <WidgetShell title="coffee.sh" accent="#D97706" style={{ animationDelay: '320ms' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 22, fontFamily: 'var(--font-display)', fontWeight: 700, color: '#10B981', lineHeight: 1 }}>
-            {count} 🍵
+          <div style={{ fontSize: 22, fontFamily: 'var(--font-display)', fontWeight: 700, color: '#D97706', lineHeight: 1 }}>
+            {count} ☕
           </div>
           <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 2 }}>cups today</div>
         </div>
         <button
           onClick={handleBrew}
           style={{
-            background: 'rgba(16, 185, 129, 0.15)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'rgba(217, 119, 6, 0.15)',
+            border: '1px solid rgba(217, 119, 6, 0.3)',
             borderRadius: 6, padding: '4px 10px',
-            color: '#10B981', fontSize: 11,
+            color: '#D97706', fontSize: 11,
             fontFamily: 'var(--font-mono)', cursor: 'pointer',
           }}
         >+ brew</button>
@@ -272,7 +285,7 @@ export default function SideWidgets() {
       <NowBuilding />
       <GitHubStats />
       <CurrentlyLearning />
-      <TeaCounter />
+      <CoffeeCounter />
     </div>
   )
 }

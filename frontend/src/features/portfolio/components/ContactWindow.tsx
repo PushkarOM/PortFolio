@@ -8,6 +8,20 @@ export default function ContactWindow() {
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const [emailError, setEmailError] = useState('')
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val)
+    if (!val) {
+      setEmailError('')
+    } else if (!EMAIL_RE.test(val)) {
+      setEmailError('Please enter a valid email address.')
+    } else {
+      setEmailError('')
+    }
+  }
 
   const inputStyle = {
     width: '100%',
@@ -29,7 +43,7 @@ export default function ContactWindow() {
   ]
 
   const handleSubmit = async () => {
-    if (!name.trim() || !email.trim() || !message.trim()) return
+    if (!name.trim() || !email.trim() || !message.trim() || !!emailError) return
     setSending(true)
     setError('')
     try {
@@ -41,6 +55,9 @@ export default function ContactWindow() {
       setSending(false)
     }
   }
+
+  const isFormValid = name.trim().length > 0 && email.trim().length > 0 && !emailError && message.trim().length > 0
+  const isDisabled = sending || !isFormValid
 
   return (
     <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 260px', minHeight: 0, height: '100%', background: 'var(--bg-window)' }}>
@@ -71,7 +88,12 @@ export default function ContactWindow() {
               </div>
               <div>
                 <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', display: 'block', marginBottom: 5 }}>Email</label>
-                <input style={inputStyle} value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" type="email" disabled={sending} />
+                <input style={inputStyle} value={email} onChange={e => handleEmailChange(e.target.value)} placeholder="your@email.com" type="email" disabled={sending} />
+                {emailError && (
+                  <div style={{ fontSize: 10, color: 'var(--red)', fontFamily: 'var(--font-mono)', marginTop: 4 }}>
+                    ⚠ {emailError}
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -91,17 +113,18 @@ export default function ContactWindow() {
             )}
             <button
               onClick={handleSubmit}
-              disabled={sending || !name || !email || !message}
+              disabled={isDisabled}
               style={{
-                background: sending ? 'var(--text-muted)' : 'var(--blue-primary)',
-                color: '#fff',
+                background: isDisabled ? 'var(--border-window)' : 'var(--blue-primary)',
+                color: isDisabled ? 'var(--text-muted)' : '#fff',
                 border: 'none', borderRadius: 7, padding: '10px 20px',
                 fontSize: 13, fontFamily: 'var(--font-display)', fontWeight: 600,
-                cursor: sending ? 'default' : 'pointer', alignSelf: 'flex-start',
-                transition: 'background 0.15s',
+                cursor: isDisabled ? 'not-allowed' : 'pointer', alignSelf: 'flex-start',
+                transition: 'background 0.15s, color 0.15s',
+                opacity: isDisabled ? 0.6 : 1,
               }}
-              onMouseEnter={e => { if (!sending) e.currentTarget.style.background = 'var(--blue-bright)' }}
-              onMouseLeave={e => { if (!sending) e.currentTarget.style.background = 'var(--blue-primary)' }}
+              onMouseEnter={e => { if (!isDisabled) e.currentTarget.style.background = 'var(--blue-bright)' }}
+              onMouseLeave={e => { if (!isDisabled) e.currentTarget.style.background = 'var(--blue-primary)' }}
             >
               {sending ? 'Sending...' : 'Send Message →'}
             </button>

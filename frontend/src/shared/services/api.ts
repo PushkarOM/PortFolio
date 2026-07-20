@@ -264,6 +264,8 @@ export const portfolioApi = {
     try {
       // POST to the public atomic-increment endpoint — no auth required.
       const data = await request('/api/settings/coffee-count', { method: 'POST' });
+      // Dispatch so sidebar CoffeeCounter widget refreshes immediately.
+      window.dispatchEvent(new Event('pushkaros-data-change'));
       return data.count ?? 0;
     } catch (err) {
       // Offline fallback: increment locally.
