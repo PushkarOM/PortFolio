@@ -1,5 +1,15 @@
 
+import { useState, useEffect } from 'react'
+
 export default function ResumeWindow() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, background: 'var(--bg-window)' }}>
       {/* Action Bar */}
@@ -44,11 +54,23 @@ export default function ResumeWindow() {
       </div>
 
       {/* Main Resume Layout */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '260px 1fr', minHeight: 0, overflow: 'hidden' }}>
+      <div style={{
+        flex: 1,
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '260px 1fr',
+        minHeight: 0,
+        overflow: isMobile ? 'auto' : 'hidden',
+      }}>
         {/* Left Column (Metadata/Skills) */}
         <div style={{
-          borderRight: '1px solid var(--border-light)', padding: '20px 16px',
-          background: 'var(--bg-window-alt)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20
+          borderRight: isMobile ? 'none' : '1px solid var(--border-light)',
+          borderBottom: isMobile ? '1px solid var(--border-light)' : 'none',
+          padding: isMobile ? '16px 14px' : '20px 16px',
+          background: 'var(--bg-window-alt)',
+          overflowY: isMobile ? 'visible' : 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 20,
         }}>
           {/* Contact Details */}
           <div>
@@ -57,9 +79,9 @@ export default function ResumeWindow() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
               <div>📞 +91-9993205227</div>
-              <div>✉️ pushkarchaturvedi42@gmail.com</div>
-              <div>💻 github.com/PushkarOM</div>
-              <div>💼 linkedin.com/in/pushkar-chaturvedi-a83778284</div>
+              <div style={{ wordBreak: 'break-all' }}>✉️ pushkarchaturvedi42@gmail.com</div>
+              <div style={{ wordBreak: 'break-all' }}>💻 github.com/PushkarOM</div>
+              <div style={{ wordBreak: 'break-all' }}>💼 linkedin.com/in/pushkar-chaturvedi-a83778284</div>
             </div>
           </div>
 
@@ -120,13 +142,19 @@ export default function ResumeWindow() {
         </div>
 
         {/* Right Column (Experience & Projects & Achievements) */}
-        <div style={{ padding: '20px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{
+          padding: isMobile ? '16px 14px' : '20px 24px',
+          overflowY: isMobile ? 'visible' : 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 24,
+        }}>
           {/* Header */}
           <div>
-            <h1 style={{ fontSize: 24, fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.03em' }}>
+            <h1 style={{ fontSize: isMobile ? 20 : 24, fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.03em' }}>
               Pushkar Chaturvedi
             </h1>
-            <p style={{ fontSize: 13, color: 'var(--blue-primary)', fontFamily: 'var(--font-mono)', margin: '4px 0 0 0' }}>
+            <p style={{ fontSize: isMobile ? 12 : 13, color: 'var(--blue-primary)', fontFamily: 'var(--font-mono)', margin: '4px 0 0 0' }}>
               Software Engineer | Backend Engineer | AI/ML Engineer
             </p>
           </div>
@@ -137,12 +165,12 @@ export default function ResumeWindow() {
               💼 Work Experience
             </h2>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
                 <div>
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>Data & Backend Engineering Intern</span>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 8 }}>— Inventlix (Remote)</span>
                 </div>
-                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>May 2025 – Jul 2025</span>
+                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>May 2025 – Jul 2025</span>
               </div>
               <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11.5, color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 5, lineHeight: 1.5 }}>
                 <li>Engineered RESTful backend services for an inventory management platform using Django REST Framework, delivering secure and maintainable APIs with pagination, filtering and sorting.</li>
@@ -161,11 +189,11 @@ export default function ResumeWindow() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* RepoSage */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
                     RepoSage — Agentic RAG Codebase Assistant
                   </div>
-                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Completed</span>
+                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Completed</span>
                 </div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', marginBottom: 6 }}>
                   Stack: Python, FastAPI, LangChain, Chroma, Docker, AWS
@@ -180,11 +208,11 @@ export default function ResumeWindow() {
 
               {/* SkillSwap */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
                     SkillSwap — Community Learning Platform
                   </div>
-                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Ongoing</span>
+                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Ongoing</span>
                 </div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', marginBottom: 6 }}>
                   Stack: React, Node.js, Express, MongoDB, JWT
@@ -198,11 +226,11 @@ export default function ResumeWindow() {
 
               {/* EmotionSense */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
                     EmotionSense — Multimodal Emotion Assistant
                   </div>
-                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>Completed</span>
+                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Completed</span>
                 </div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', marginBottom: 6 }}>
                   Stack: FastAPI, React, PyTorch, Hugging Face

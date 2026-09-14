@@ -411,9 +411,9 @@ export default function TerminalWindow({ onThemeChange }: Props) {
       >
         {lines.map((line, i) => (
           <div key={i} style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 11.5,
-            lineHeight: 1.6,
+            fontFamily: 'var(--font-pixel)',
+            fontSize: 13,
+            lineHeight: 1.5,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
             color: line.type === 'prompt' ? 'var(--text-terminal)'
@@ -428,7 +428,7 @@ export default function TerminalWindow({ onThemeChange }: Props) {
 
         {/* Input line */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--text-terminal)', whiteSpace: 'nowrap' }}>
+          <span style={{ fontFamily: 'var(--font-pixel)', fontSize: 13, color: 'var(--text-terminal)', whiteSpace: 'nowrap' }}>
             pushkar@os:~$
           </span>
           <input
@@ -442,7 +442,6 @@ export default function TerminalWindow({ onThemeChange }: Props) {
             disabled={isStreaming}
             style={{ opacity: isStreaming ? 0.5 : 1 }}
           />
-          <span className="cursor-blink" style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--text-terminal)' }}>█</span>
         </div>
 
         {/* Autocomplete Panel */}
@@ -453,8 +452,8 @@ export default function TerminalWindow({ onThemeChange }: Props) {
             background: 'rgba(0,0,0,0.4)',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 6,
-            fontFamily: 'var(--font-mono)',
-            fontSize: 10.5,
+            fontFamily: 'var(--font-pixel)',
+            fontSize: 12,
             color: 'var(--text-terminal-dim)',
             display: 'flex',
             gap: 12,

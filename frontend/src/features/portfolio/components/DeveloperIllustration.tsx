@@ -1,32 +1,48 @@
-export default function DeveloperIllustration() {
+interface Props {
+  isMobile?: boolean
+}
+
+export default function DeveloperIllustration({ isMobile }: Props) {
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: isMobile ? 'auto' : '100%',
+      padding: isMobile ? '12px 0 8px 0' : 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       {/* Floating tech badges */}
-      <div className="float-a" style={{ position: 'absolute', top: '8%', left: '8%', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#4338CA', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', top: isMobile ? '2%' : '8%', left: isMobile ? '2%' : '8%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-deep)', fontWeight: 500, zIndex: 2 }}>
         Python 🐍
       </div>
-      <div className="float-b" style={{ position: 'absolute', top: '12%', right: '6%', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#15803D', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-b" style={{ position: 'absolute', top: isMobile ? '4%' : '12%', right: isMobile ? '2%' : '6%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
         PyTorch 🔥
       </div>
-      <div className="float-c" style={{ position: 'absolute', bottom: '18%', left: '4%', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#C2410C', fontWeight: 500, zIndex: 2 }}>
-        {'</>'}  React
+      <div className="float-c" style={{ position: 'absolute', bottom: isMobile ? '6%' : '18%', left: isMobile ? '1%' : '4%', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+        {'</>'} React
       </div>
-      <div className="float-a" style={{ position: 'absolute', bottom: '22%', right: '5%', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#0369A1', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', bottom: isMobile ? '8%' : '22%', right: isMobile ? '1%' : '5%', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-bright)', fontWeight: 500, zIndex: 2 }}>
         🐳 Docker
       </div>
-      <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: '#FDF4FF', border: '1px solid #E9D5FF', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#7E22CE', fontWeight: 500, zIndex: 2 }}>
-        {'{ }'}
-      </div>
-      <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#065F46', fontWeight: 500, zIndex: 2 }}>
-        ⚡ GPU
-      </div>
+      {!isMobile && (
+        <>
+          <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
+            {'{ }'}
+          </div>
+          <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+            ⚡ GPU
+          </div>
+        </>
+      )}
 
       {/* Small floating stars */}
       {[
-        { top: '25%', left: '20%', size: 10, color: '#F59E0B', delay: '0.5s' },
-        { top: '60%', left: '15%', size: 8, color: '#8B5CF6', delay: '1.2s' },
-        { top: '20%', right: '20%', size: 12, color: '#22D3EE', delay: '0.8s' },
-        { top: '70%', right: '18%', size: 9, color: '#34D399', delay: '1.5s' },
+        { top: '25%', left: '20%', size: 10, color: 'var(--blue-bright)', delay: '0.5s' },
+        { top: '60%', left: '15%', size: 8, color: 'var(--blue-sky)', delay: '1.2s' },
+        { top: '20%', right: '20%', size: 12, color: 'var(--blue-primary)', delay: '0.8s' },
+        { top: '70%', right: '18%', size: 9, color: 'var(--blue-deep)', delay: '1.5s' },
       ].map((star, i) => (
         <div key={i} className="float-a" style={{
           position: 'absolute',
@@ -41,17 +57,19 @@ export default function DeveloperIllustration() {
         </div>
       ))}
 
-      {/* Main illustration — cat at desk, replaces the old hand-drawn SVG figure */}
+      {/* Main illustration — Pushkar pixel art avatar */}
       <img
         src="developer1.png" 
-        alt="Cartoon cat sitting at a desk coding, with a monitor and glowing PC tower"
+        alt="Pixel-art portrait illustration of Pushkar coding at a desk"
+        className="img-pixelated"
         style={{
           position: 'relative',
           zIndex: 0,
-          width: '90%',
-          maxWidth: 320,
+          width: isMobile ? '80%' : '90%',
+          maxWidth: isMobile ? 200 : 320,
           height: 'auto',
           objectFit: 'contain',
+          imageRendering: 'pixelated',
         }}
       />
     </div>

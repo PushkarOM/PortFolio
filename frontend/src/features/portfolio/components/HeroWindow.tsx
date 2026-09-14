@@ -12,6 +12,13 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
   const [roleIndex, setRoleIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
   const [typing, setTyping] = useState(true)
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     const role = ROLES[roleIndex]
@@ -41,21 +48,24 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
       <div style={{
         flex: 1,
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
         minHeight: 0,
-        overflow: 'hidden',
+        overflow: isMobile ? 'auto' : 'hidden',
       }}>
-        {/* Left — illustration */}
+        {/* Top/Left — illustration */}
         <div style={{
           background: 'var(--bg-window-alt)',
-          borderRight: '1px solid var(--border-light)',
-          padding: 8,
+          borderRight: isMobile ? 'none' : '1px solid var(--border-light)',
+          borderBottom: isMobile ? '1px solid var(--border-light)' : 'none',
+          padding: isMobile ? '10px 8px 4px 8px' : 8,
+          height: isMobile ? 'auto' : undefined,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
           overflow: 'hidden',
           minHeight: 0,
+          flexShrink: 0,
         }}>
           {/* Grid dot bg */}
           <div style={{
@@ -63,17 +73,17 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
             backgroundImage: 'radial-gradient(circle, rgba(37,99,235,0.08) 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }} />
-          <DeveloperIllustration />
+          <DeveloperIllustration isMobile={isMobile} />
         </div>
 
-        {/* Right — intro */}
+        {/* Bottom/Right — intro */}
         <div style={{
-          padding: '24px 22px',
+          padding: isMobile ? '14px 16px' : '24px 22px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           gap: 0,
-          overflowY: 'auto',
+          overflowY: isMobile ? 'visible' : 'auto',
         }}>
           {/* Greeting */}
           <div style={{
@@ -88,7 +98,7 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
 
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(22px, 3vw, 32px)',
+            fontSize: isMobile ? 24 : 'clamp(22px, 3vw, 32px)',
             fontWeight: 700,
             color: 'var(--text-primary)',
             margin: '0 0 4px 0',
@@ -101,7 +111,7 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
           {/* Typing role */}
           <div style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: 'clamp(12px, 1.6vw, 15px)',
+            fontSize: isMobile ? 13 : 'clamp(12px, 1.6vw, 15px)',
             color: 'var(--blue-primary)',
             marginBottom: 14,
             minHeight: 22,

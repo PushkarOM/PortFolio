@@ -3,6 +3,13 @@ import { portfolioApi, SkillCategory } from '../../../shared/services/api'
 
 export default function SkillsWindow() {
   const [categories, setCategories] = useState<SkillCategory[]>([])
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const loadSkills = async () => {
     try {
@@ -29,7 +36,7 @@ export default function SkillsWindow() {
 
   return (
     <div style={{ flex: 1, padding: '14px 16px', overflowY: 'auto', background: 'var(--bg-terminal)', height: '100%' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobile ? 140 : 220}px, 1fr))`, gap: 14 }}>
         {categories.map(cat => (
           <div key={cat.name} style={{
             background: 'rgba(255,255,255,0.03)',

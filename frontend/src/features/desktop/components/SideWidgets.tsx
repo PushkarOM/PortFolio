@@ -51,7 +51,7 @@ function Neofetch() {
   ]
 
   return (
-    <WidgetShell title="system_info.sys" accent="#34D399" style={{ animationDelay: '0ms' }}>
+    <WidgetShell title="system_info.sys" accent="var(--mint)" style={{ animationDelay: '0ms' }}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         {/* ASCII art mini */}
        <div
@@ -79,7 +79,7 @@ function Neofetch() {
       </div>
       {/* Color swatches */}
       <div style={{ display: 'flex', gap: 2, marginTop: 8 }}>
-        {['#1E2333', '#2563EB', '#34D399', '#F59E0B', '#8B5CF6', '#EF4444', '#22D3EE', '#E2E8F0'].map(c => (
+        {['var(--bg-topbar)', 'var(--blue-deep)', 'var(--blue-primary)', 'var(--blue-bright)', 'var(--blue-sky)', 'var(--purple)', 'var(--border-window)', 'var(--bg-window)'].map(c => (
           <div key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c }} />
         ))}
       </div>
@@ -108,7 +108,7 @@ function NowBuilding() {
   if (items.length === 0) return null
 
   return (
-    <WidgetShell title="now_building.md" accent="#3B82F6" style={{ animationDelay: '80ms' }}>
+    <WidgetShell title="now_building.md" accent="var(--blue-bright)" style={{ animationDelay: '80ms' }}>
       {items.map((item, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
           <div style={{ width: 5, height: 5, borderRadius: '50%', background: item.dot, flexShrink: 0 }} />
@@ -130,14 +130,14 @@ function GitHubStats() {
   }, [])
 
   const displayStats = [
-    { label: 'Repos', value: stats.repos.toString(), color: '#3B82F6' },
-    { label: 'Stars', value: stats.stars.toString(), color: '#F59E0B' },
-    { label: 'Streak', value: stats.streak, color: '#34D399' },
+    { label: 'Repos', value: stats.repos.toString(), color: 'var(--blue-primary)' },
+    { label: 'Stars', value: stats.stars.toString(), color: 'var(--amber)' },
+    { label: 'Streak', value: stats.streak, color: 'var(--mint)' },
     // Render '—' when prs is null (GitHub search API failed) rather than showing a stale/fake number
-    { label: 'PRs', value: stats.prs !== null ? stats.prs.toString() : '—', color: '#8B5CF6' },
+    { label: 'PRs', value: stats.prs !== null ? stats.prs.toString() : '—', color: 'var(--purple)' },
   ]
   return (
-    <WidgetShell title="github_stats.json" accent="#F59E0B" style={{ animationDelay: '160ms' }}>
+    <WidgetShell title="github_stats.json" accent="var(--amber)" style={{ animationDelay: '160ms' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {displayStats.map(s => (
           <div key={s.label} style={{
@@ -174,7 +174,7 @@ function CurrentlyLearning() {
 
   if (items.length === 0) return null
   return (
-    <WidgetShell title="learning.log" accent="#8B5CF6" style={{ animationDelay: '240ms' }}>
+    <WidgetShell title="learning.log" accent="var(--purple)" style={{ animationDelay: '240ms' }}>
       {items.map(item => (
         <div key={item.name} style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>

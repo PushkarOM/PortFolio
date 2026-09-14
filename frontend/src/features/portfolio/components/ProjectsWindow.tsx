@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { portfolioApi, Project } from '../../../shared/services/api'
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  Production: { bg: 'rgba(52,211,153,0.15)', text: '#34D399' },
-  Active: { bg: 'rgba(59,130,246,0.15)', text: '#60A5FA' },
-  Research: { bg: 'rgba(245,158,11,0.15)', text: '#F59E0B' },
-  Complete: { bg: 'rgba(148,163,184,0.15)', text: '#94A3B8' },
+  Production: { bg: 'rgba(37,99,235,0.12)', text: 'var(--mint)' },
+  Active: { bg: 'rgba(59,130,246,0.12)', text: 'var(--blue-sky)' },
+  Research: { bg: 'rgba(245,158,11,0.15)', text: 'var(--amber)' },
+  Complete: { bg: 'rgba(148,163,184,0.15)', text: 'var(--text-muted)' },
 }
 
 export default function ProjectsWindow() {
@@ -49,8 +49,12 @@ export default function ProjectsWindow() {
         display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
         borderBottom: '1px solid var(--border-light)',
         background: 'var(--bg-window)',
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        position: 'relative',
+        scrollbarWidth: 'none',
       }}>
-        <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginRight: 4 }}>Filter:</span>
+        <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginRight: 4, flexShrink: 0 }}>Filter:</span>
         {filters.map(f => (
           <button key={f}
             onClick={() => setFilter(f)}
@@ -58,9 +62,11 @@ export default function ProjectsWindow() {
               background: filter === f ? 'var(--blue-primary)' : 'transparent',
               color: filter === f ? '#fff' : 'var(--text-secondary)',
               border: `1px solid ${filter === f ? 'var(--blue-primary)' : 'var(--border-light)'}`,
-              borderRadius: 5, padding: '2px 9px',
+              borderRadius: 5, padding: '4px 10px',
               fontSize: 10, fontFamily: 'var(--font-mono)', cursor: 'pointer',
               transition: 'all 0.15s',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
             }}
           >{f}</button>
         ))}
@@ -73,7 +79,7 @@ export default function ProjectsWindow() {
           <div style={{
             flex: 1, padding: 12, overflowY: 'auto',
             display: 'grid',
-            gridTemplateColumns: selected ? '1fr' : 'repeat(auto-fill, minmax(220px, 1fr))',
+            gridTemplateColumns: selected ? '1fr' : (isMobile ? '1fr' : 'repeat(auto-fill, minmax(220px, 1fr))'),
             gap: 10,
             alignContent: 'start',
           }}>

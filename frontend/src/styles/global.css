@@ -1,44 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap');
 @import 'tailwindcss';
 
 /* ── PushkarOS Design Tokens ── */
 :root {
   /* Aurora (default) */
-  --bg-desktop: #E8E2CF;
-  --bg-desktop-grid: rgba(100, 90, 60, 0.10);
-  --bg-window: #FAFAF8;
-  --bg-window-alt: #F0F4FF;
-  --bg-topbar: #0D1117;
-  --bg-dock: rgba(255,255,255,0.72);
+  --bg-desktop: #F8FAFC;
+  --bg-desktop-grid: rgba(37, 99, 235, 0.07);
+  --bg-window: #FFFFFF;
+  --bg-window-alt: #F1F5F9;
+  --bg-topbar: #0B1220;
+  --bg-dock: rgba(255, 255, 255, 0.85);
   --bg-widget: #FFFFFF;
   --bg-terminal: #0B1220;
   --bg-icon-hover: rgba(37, 99, 235, 0.12);
 
-  --text-primary: #111827;
+  --text-primary: #0F172A;
   --text-secondary: #475569;
   --text-muted: #94A3B8;
   --text-topbar: #E2E8F0;
-  --text-terminal: #34D399;
+  --text-terminal: #60A5FA;
   --text-terminal-dim: #64748B;
 
   --blue-primary: #2563EB;
   --blue-bright: #3B82F6;
   --blue-sky: #60A5FA;
   --blue-deep: #1E3A8A;
-  --cyan: #22D3EE;
-  --purple: #8B5CF6;
-  --mint: #34D399;
+  --cyan: #38BDF8;
+  --purple: #3B82F6;
+  --mint: #2563EB;
   --amber: #F59E0B;
   --red: #EF4444;
 
   --border-light: rgba(203, 213, 225, 0.8);
   --border-window: #CBD5E1;
-  --shadow-window: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
-  --shadow-dock: 0 -2px 24px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-window: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-dock: 0 -2px 24px rgba(0, 0, 0, 0.06), 0 8px 32px rgba(0, 0, 0, 0.1);
 
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-pixel: 'Pixelify Sans', 'VT323', monospace;
 
   --radius-window: 10px;
   --radius-widget: 8px;
@@ -55,13 +56,26 @@
   --bg-dock: rgba(15, 25, 35, 0.85);
   --bg-widget: #0F1923;
   --bg-terminal: #060D18;
+  --bg-icon-hover: rgba(59, 130, 246, 0.15);
+
   --text-primary: #E2E8F0;
   --text-secondary: #94A3B8;
   --text-muted: #475569;
   --text-topbar: #94A3B8;
+  --text-terminal: #34D399;
+  --text-terminal-dim: #64748B;
+
+  --blue-primary: #3B82F6;
+  --blue-bright: #60A5FA;
+  --blue-sky: #93C5FD;
+  --blue-deep: #1E3A8A;
+  --purple: #8B5CF6;
+  --mint: #34D399;
+  --amber: #F59E0B;
+  --cyan: #22D3EE;
+
   --border-light: rgba(30, 58, 138, 0.4);
   --border-window: rgba(59, 130, 246, 0.2);
-  --bg-icon-hover: rgba(59, 130, 246, 0.15);
 }
 
 /* RetroOS theme */
@@ -74,12 +88,24 @@
   --bg-dock: rgba(245, 237, 214, 0.9);
   --bg-widget: #FFFDF5;
   --bg-terminal: #1A1208;
+  --bg-icon-hover: rgba(139, 105, 20, 0.12);
+
   --text-primary: #2D2416;
   --text-secondary: #6B5A3E;
+  --text-muted: #9C8A6E;
   --text-topbar: #D4C08A;
   --text-terminal: #A8C060;
+  --text-terminal-dim: #786848;
+
   --blue-primary: #8B6914;
   --blue-bright: #A07820;
+  --blue-sky: #C5A059;
+  --blue-deep: #543E0C;
+  --purple: #9F7AEA;
+  --mint: #78A030;
+  --amber: #D69E2E;
+  --cyan: #5B8C85;
+
   --border-light: rgba(180, 150, 80, 0.3);
   --border-window: rgba(180, 150, 80, 0.5);
 }
@@ -94,24 +120,38 @@
   --bg-dock: rgba(0, 20, 0, 0.9);
   --bg-widget: #001200;
   --bg-terminal: #000800;
+  --bg-icon-hover: rgba(0, 255, 65, 0.1);
+
   --text-primary: #00FF41;
   --text-secondary: #00CC33;
   --text-muted: #006618;
   --text-topbar: #00FF41;
   --text-terminal: #00FF41;
+  --text-terminal-dim: #009926;
+
   --blue-primary: #00FF41;
   --blue-bright: #00CC33;
+  --blue-sky: #00FF41;
+  --blue-deep: #003300;
+  --purple: #00FF41;
+  --mint: #00FF41;
+  --amber: #00FF41;
+  --cyan: #00FF41;
+
   --border-light: rgba(0, 255, 65, 0.15);
   --border-window: rgba(0, 255, 65, 0.25);
-  --bg-icon-hover: rgba(0, 255, 65, 0.1);
-  --mint: #00FF41;
-  --cyan: #00FF41;
 }
 
 /* ── Global ── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -122,10 +162,59 @@ html, body, #root {
 }
 
 /* Scrollbars */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-window); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-window);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Crisp pixel-art rendering helper */
+.img-pixelated {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+
+/* Smooth theme transitions for cross-fading colors */
+.desktop-grid,
+.window,
+.window-title-bar,
+.window-title,
+.desktop-icon,
+.dock-item,
+nav,
+header,
+aside,
+article,
+section {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Dock click bounce animation */
+@keyframes dockBounce {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-16px) scale(1.18); }
+  65% { transform: translateY(-2px) scale(1.04); }
+  85% { transform: translateY(-1px) scale(1.01); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.dock-bounce {
+  animation: dockBounce 0.42s cubic-bezier(0.28, 0.84, 0.42, 1) 1 !important;
+}
 
 /* Desktop grid background */
 .desktop-grid {
@@ -153,7 +242,7 @@ html, body, #root {
   justify-content: space-between;
   cursor: grab;
   user-select: none;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   height: 32px;
 }
 
@@ -172,8 +261,15 @@ html, body, #root {
   line-height: 1;
   transition: background 0.15s, color 0.15s;
 }
-.window-control:hover { background: rgba(255, 255, 255, 0.1); }
-.window-control.close:hover { background: #E81123; color: white; }
+
+.window-control:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.window-control.close:hover {
+  background: #E81123;
+  color: white;
+}
 
 .window-title {
   font-family: var(--font-mono);
@@ -188,8 +284,14 @@ html, body, #root {
 .dock-item {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.dock-item:hover { transform: translateY(-8px) scale(1.15); }
-.dock-item:active { transform: translateY(-4px) scale(1.05); }
+
+.dock-item:hover {
+  transform: translateY(-8px) scale(1.15);
+}
+
+.dock-item:active {
+  transform: translateY(-4px) scale(1.05);
+}
 
 /* Desktop icons */
 .desktop-icon {
@@ -202,11 +304,15 @@ html, body, #root {
   cursor: pointer;
   transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .desktop-icon:hover {
   background: var(--bg-icon-hover);
   transform: scale(1.08);
 }
-.desktop-icon:active { transform: scale(0.96); }
+
+.desktop-icon:active {
+  transform: scale(0.96);
+}
 
 /* Terminal */
 .terminal-input {
@@ -214,82 +320,278 @@ html, body, #root {
   border: none;
   outline: none;
   color: var(--text-terminal);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
   flex: 1;
   caret-color: var(--text-terminal);
 }
 
 /* Blinking cursor */
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
-.cursor-blink { animation: blink 1s infinite; }
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
 
 /* Boot screen animations */
-@keyframes bootFade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bootSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes desktopReveal {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes bootFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
-.boot-reveal { animation: bootFade 0.6s ease forwards; }
-.desktop-reveal { animation: desktopReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes bootSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoBreathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes bootMarquee {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 72px 0;
+  }
+}
+
+@keyframes desktopReveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.boot-reveal {
+  animation: bootFade 0.6s ease forwards;
+}
+
+.desktop-reveal {
+  animation: desktopReveal 0.6s ease forwards;
+}
+
+.logo-breathe {
+  animation: logoBreathe 1.5s ease-in-out infinite;
+}
+
+.boot-marquee {
+  background: repeating-linear-gradient(90deg,
+      var(--blue-primary) 0px,
+      var(--blue-primary) 24px,
+      transparent 24px,
+      transparent 36px,
+      var(--purple) 36px,
+      var(--purple) 60px,
+      transparent 60px,
+      transparent 72px);
+  background-size: 144px 100%;
+  animation: bootMarquee 1.2s linear infinite;
+}
+
+@keyframes bootLogoPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.boot-logo-pop {
+  animation: bootLogoPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bootLetterIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.boot-letter-in {
+  animation: bootLetterIn 0.35s ease forwards;
+}
 
 /* Float animations for decorative doodles */
 @keyframes floatA {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-6px) rotate(3deg); }
-  66% { transform: translateY(-3px) rotate(-2deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  33% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+
+  66% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
 }
+
 @keyframes floatB {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(-4deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(-4deg);
+  }
 }
+
 @keyframes floatC {
-  0%, 100% { transform: translateY(0px); }
-  40% { transform: translateY(-5px); }
-  70% { transform: translateY(-2px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  40% {
+    transform: translateY(-5px);
+  }
+
+  70% {
+    transform: translateY(-2px);
+  }
 }
-.float-a { animation: floatA 4s ease-in-out infinite; }
-.float-b { animation: floatB 5s ease-in-out infinite; }
-.float-c { animation: floatC 3.5s ease-in-out infinite; }
+
+.float-a {
+  animation: floatA 4s ease-in-out infinite;
+}
+
+.float-b {
+  animation: floatB 5s ease-in-out infinite;
+}
+
+.float-c {
+  animation: floatC 3.5s ease-in-out infinite;
+}
+
+/* ── Reduced motion: suppress ambient float / parallax animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .float-a,
+  .float-b,
+  .float-c {
+    animation: none !important;
+  }
+}
+
 
 /* Typing effect */
 @keyframes typeIn {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 /* Slide-in for windows */
 @keyframes windowOpen {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
-.window-open { animation: windowOpen 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+.window-open {
+  animation: windowOpen 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
 /* Glow effect */
-.glow-blue { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3), 0 0 12px rgba(37, 99, 235, 0.15); }
+.glow-blue {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3), 0 0 12px rgba(37, 99, 235, 0.15);
+}
 
 /* Skill bars */
-.skill-bar { font-family: var(--font-mono); font-size: 12px; color: var(--mint); }
+.skill-bar {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--mint);
+}
 
 /* Scanlines for Matrix */
 [data-theme="matrix"] .window::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px);
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 65, 0.015) 2px, rgba(0, 255, 65, 0.015) 4px);
   pointer-events: none;
   border-radius: inherit;
 }
 
 /* Sidebar widgets staggered slide-in */
 @keyframes widgetSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .widget-slide-in {
   animation: widgetSlideIn 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
