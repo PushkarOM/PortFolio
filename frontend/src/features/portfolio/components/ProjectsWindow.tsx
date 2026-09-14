@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { portfolioApi, Project } from '../../../shared/services/api'
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  Production: { bg: 'rgba(52,211,153,0.15)', text: '#34D399' },
-  Active: { bg: 'rgba(59,130,246,0.15)', text: '#60A5FA' },
-  Research: { bg: 'rgba(245,158,11,0.15)', text: '#F59E0B' },
-  Complete: { bg: 'rgba(148,163,184,0.15)', text: '#94A3B8' },
+  Production: { bg: 'rgba(37,99,235,0.12)', text: 'var(--mint)' },
+  Active: { bg: 'rgba(59,130,246,0.12)', text: 'var(--blue-sky)' },
+  Research: { bg: 'rgba(245,158,11,0.15)', text: 'var(--amber)' },
+  Complete: { bg: 'rgba(148,163,184,0.15)', text: 'var(--text-muted)' },
 }
 
 export default function ProjectsWindow() {

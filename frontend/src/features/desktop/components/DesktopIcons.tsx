@@ -29,8 +29,8 @@ function TerminalIcon() {
       <circle cx="8" cy="6" r="1.5" fill="#FF5F57" />
       <circle cx="13" cy="6" r="1.5" fill="#FFBD2E" />
       <circle cx="18" cy="6" r="1.5" fill="#28CA42" />
-      <path d="M7 15L12 18.5L7 22" stroke="#34D399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M14 22H22" stroke="#34D399" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M7 15L12 18.5L7 22" stroke="var(--text-terminal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 22H22" stroke="var(--text-terminal)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   )
 }
@@ -38,9 +38,9 @@ function TerminalIcon() {
 function TrashIcon() {
   return (
     <svg width="28" height="30" viewBox="0 0 28 30" fill="none">
-      <rect x="4" y="8" width="20" height="20" rx="3" fill="#64748B" />
-      <rect x="4" y="8" width="20" height="20" rx="3" fill="#94A3B8" opacity="0.3" />
-      <path d="M2 8H26M10 4H18M11 14V22M17 14V22" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <rect x="4" y="8" width="20" height="20" rx="3" fill="var(--text-muted)" />
+      <rect x="4" y="8" width="20" height="20" rx="3" fill="var(--text-muted)" opacity="0.3" />
+      <path d="M2 8H26M10 4H18M11 14V22M17 14V22" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   )
 }
@@ -61,37 +61,37 @@ export default function DesktopIcons({ onOpen }: Props) {
       id: 'Terminal',
       label: 'Terminal',
       icon: <TerminalIcon />,
-      color: '#1E2333',
+      color: 'var(--bg-topbar)',
     },
     {
       id: 'Projects',
       label: 'Projects',
-      icon: <FolderIcon color="#3B82F6" />,
-      color: '#3B82F6',
+      icon: <FolderIcon color="var(--blue-bright)" />,
+      color: 'var(--blue-bright)',
     },
     {
       id: 'Experience',
       label: 'Experience',
-      icon: <FolderIcon color="#8B5CF6" />,
-      color: '#8B5CF6',
+      icon: <FolderIcon color="var(--purple)" />,
+      color: 'var(--purple)',
     },
     {
       id: 'Skills',
       label: 'Skills',
-      icon: <FolderIcon color="#34D399" />,
-      color: '#34D399',
+      icon: <FolderIcon color="var(--mint)" />,
+      color: 'var(--mint)',
     },
     {
       id: 'Resume',
       label: 'resume.txt',
-      icon: <DocIcon color="#F59E0B" />,
-      color: '#F59E0B',
+      icon: <DocIcon color="var(--amber)" />,
+      color: 'var(--amber)',
     },
     {
       id: 'Contact',
       label: 'Contact',
-      icon: <FolderIcon color="#22D3EE" />,
-      color: '#22D3EE',
+      icon: <FolderIcon color="var(--cyan)" />,
+      color: 'var(--cyan)',
     },
     {
       id: 'Trash',

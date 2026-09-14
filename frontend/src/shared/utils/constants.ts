@@ -8,7 +8,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stack: ['Python', 'LangChain', 'FastAPI', 'Chroma', 'Celery', 'Docker'],
     status: 'Active',
     stars: 48,
-    color: '#3B82F6',
+    color: '#2563EB',
     emoji: '🤖',
     highlights: ['RAG + LangChain agent', 'Async ingestion via Celery/Redis', 'GitHub Actions CI'],
     githubUrl: 'https://github.com/PushkarOM/RepoSage',
@@ -20,7 +20,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stack: ['React', 'Node.js', 'Express', 'MongoDB', 'JWT'],
     status: 'Active',
     stars: 31,
-    color: '#8B5CF6',
+    color: '#3B82F6',
     emoji: '🔄',
     highlights: ['JWT access/refresh auth', 'Email verification flow', 'Docker-based CI/CD'],
     githubUrl: 'https://github.com/PushkarOM/SkillSwap',
@@ -32,7 +32,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stack: ['React.js', 'FastAPI', 'PyTorch', 'Hugging Face', 'Soundfile', 'OpenAI API'],
     status: 'Active',
     stars: 64,
-    color: '#EC4899',
+    color: '#60A5FA',
     emoji: '🎭',
     highlights: ['Multimodal ASR + text emotion', 'Custom PyTorch models', 'FastAPI modular backend'],
     githubUrl: 'https://github.com/PushkarOM/EmotionSense',
@@ -44,7 +44,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stack: ['Python', 'Vosk', 'Coqui TTS', 'Raspberry Pi'],
     status: 'Complete',
     stars: 27,
-    color: '#F59E0B',
+    color: '#1E3A8A',
     emoji: '🗣️',
     highlights: ['Fully offline on Raspberry Pi', 'Top 6 at Bharat AI-SOC', 'Low-latency ARM inference'],
     githubUrl: 'https://github.com/PushkarOM/hindi-voice-assistant',
@@ -57,7 +57,7 @@ export const DEFAULT_EXPERIENCES: Experience[] = [
     role: 'Data & Backend Engineering Intern',
     company: 'Inventlix (Remote)',
     period: 'May 2025 – Jul 2025',
-    color: '#3B82F6',
+    color: '#2563EB',
     achievements: [
       'Built RESTful CRUD APIs with pagination, filtering, and sorting for a full-stack inventory management system using Django and React',
       'Implemented secure JWT and Google OAuth authentication with RBAC, embedding user roles in token payloads to eliminate repeated DB authorization lookups',
@@ -70,7 +70,7 @@ export const DEFAULT_EXPERIENCES: Experience[] = [
 export const DEFAULT_SKILLS: SkillCategory[] = [
   {
     name: 'Languages',
-    color: '#3B82F6',
+    color: '#2563EB',
     skills: [
       { name: 'Python', level: 95 },
       { name: 'TypeScript', level: 82 },
@@ -80,7 +80,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'ML / DL',
-    color: '#8B5CF6',
+    color: '#3B82F6',
     skills: [
       { name: 'PyTorch', level: 90 },
       { name: 'TensorFlow', level: 78 },
@@ -90,7 +90,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'Frontend',
-    color: '#22D3EE',
+    color: '#60A5FA',
     skills: [
       { name: 'React', level: 85 },
       { name: 'Next.js', level: 78 },
@@ -99,7 +99,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'Backend',
-    color: '#34D399',
+    color: '#1E3A8A',
     skills: [
       { name: 'FastAPI', level: 88 },
       { name: 'Django', level: 82 },
@@ -109,7 +109,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'DevOps / Cloud',
-    color: '#F59E0B',
+    color: '#475569',
     skills: [
       { name: 'Docker', level: 84 },
       { name: 'AWS', level: 72 },
@@ -121,14 +121,14 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
 
 // NowBuildingItem runtime shape: { id, text, dot } — matches SideWidgets.tsx and StudioCMS.tsx
 export const DEFAULT_NOW_BUILDING: NowBuildingItem[] = [
-  { id: '1', text: 'RepoSage — Agentic RAG for codebases', dot: '#3B82F6' },
-  { id: '2', text: 'SkillSwap — MERN community learning platform', dot: '#8B5CF6' },
-  { id: '3', text: 'EmotionSense — Multimodal emotion AI', dot: '#EC4899' },
+  { id: '1', text: 'RepoSage — Agentic RAG for codebases', dot: '#2563EB' },
+  { id: '2', text: 'SkillSwap — MERN community learning platform', dot: '#3B82F6' },
+  { id: '3', text: 'EmotionSense — Multimodal emotion AI', dot: '#60A5FA' },
 ];
 
 // LearningItem runtime shape: { id, name, pct, color } — matches SideWidgets.tsx and StudioCMS.tsx
 export const DEFAULT_LEARNING: LearningItem[] = [
-  { id: '1', name: 'LangChain Agents & Tools', pct: 75, color: '#F59E0B' },
+  { id: '1', name: 'LangChain Agents & Tools', pct: 75, color: '#2563EB' },
   { id: '2', name: 'Kubernetes Operator Pattern', pct: 30, color: '#3B82F6' },
-  { id: '3', name: 'CUDA C++ Memory Architecture', pct: 65, color: '#EC4899' },
+  { id: '3', name: 'CUDA C++ Memory Architecture', pct: 65, color: '#60A5FA' },
 ];

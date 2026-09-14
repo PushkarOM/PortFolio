@@ -65,7 +65,7 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
         onClick={() => onSectionChange('Home')}>
         <div style={{
           width: 20, height: 20, borderRadius: 5,
-          background: 'linear-gradient(135deg, #2563EB, #8B5CF6)',
+          background: 'linear-gradient(135deg, var(--blue-primary), var(--purple))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 11, fontWeight: 700, color: '#fff',
           fontFamily: 'var(--font-display)',
@@ -110,7 +110,7 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
             }}
           >
             {activeSection === item && (
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#3B82F6', display: 'inline-block' }} />
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--blue-bright)', display: 'inline-block' }} />
             )}
             {item}
           </button>
@@ -129,7 +129,7 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
         {/* Battery */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <div style={{ width: 20, height: 10, border: '1.2px solid rgba(148,163,184,0.5)', borderRadius: 2, position: 'relative', display: 'flex', alignItems: 'center', padding: '1px' }}>
-            <div style={{ width: '80%', height: '100%', background: '#34D399', borderRadius: 1 }} />
+            <div style={{ width: '80%', height: '100%', background: 'var(--mint)', borderRadius: 1 }} />
             <div style={{ position: 'absolute', right: -3, top: '50%', transform: 'translateY(-50%)', width: 2, height: 5, background: 'rgba(148,163,184,0.5)', borderRadius: '0 1px 1px 0' }} />
           </div>
           <span style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', fontFamily: 'var(--font-mono)' }}>80%</span>

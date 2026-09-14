@@ -79,6 +79,7 @@ function ResumeIcon() {
 
 export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings, openWindowIds }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  const [bouncingId, setBouncingId] = useState<string | null>(null)
 
   const items: DockItem[] = [
     { id: 'terminal', label: 'Terminal', icon: <TerminalIcon />, action: onOpenTerminal },
@@ -123,6 +124,7 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
       }}>
         {items.map((item, i) => {
           const scale = getScale(i)
+          const isBouncing = bouncingId === item.id
           return (
             <div key={item.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {/* Tooltip */}
@@ -145,6 +147,7 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
                 </div>
               )}
               <button
+                className={`dock-item ${isBouncing ? 'dock-bounce' : ''}`}
                 style={{
                   width: 42,
                   height: 42,
@@ -155,12 +158,14 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer',
                   transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s',
-                  transform: `scale(${scale}) translateY(${hoveredIdx === i ? -4 : 0}px)`,
+                  transform: isBouncing ? undefined : `scale(${scale}) translateY(${hoveredIdx === i ? -4 : 0}px)`,
                   boxShadow: hoveredIdx === i ? '0 4px 16px rgba(0,0,0,0.15)' : 'none',
                 }}
                 onMouseEnter={() => setHoveredIdx(i)}
                 onMouseLeave={() => setHoveredIdx(null)}
                 onClick={() => {
+                  setBouncingId(item.id)
+                  setTimeout(() => setBouncingId(null), 450)
                   if (item.action) item.action()
                   else if (item.href) window.open(item.href, '_blank')
                 }}

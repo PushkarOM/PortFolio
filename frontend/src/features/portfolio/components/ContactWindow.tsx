@@ -39,7 +39,7 @@ export default function ContactWindow() {
   const links = [
     { label: 'GitHub', icon: '⌨️', value: 'github.com/PushkarOM', color: '#E2E8F0', href: 'https://github.com/PushkarOM' },
     { label: 'LinkedIn', icon: '💼', value: 'linkedin.com/in/pushkar-chaturvedi-a83778284', color: '#0A66C2', href: 'https://in.linkedin.com/in/pushkar-chaturvedi-a83778284' },
-    { label: 'Email', icon: '📬', value: 'pushkarchaturvedi42@gmail.com', color: '#34D399', href: 'mailto:pushkarchaturvedi42@gmail.com' },
+    { label: 'Email', icon: '📬', value: 'pushkarchaturvedi42@gmail.com', color: '#2563EB', href: 'mailto:pushkarchaturvedi42@gmail.com' },
   ]
 
   const handleSubmit = async () => {

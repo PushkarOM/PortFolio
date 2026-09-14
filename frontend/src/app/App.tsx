@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import DesktopBackground from '../features/desktop/components/DesktopBackground'
 import BootScreen from '../features/desktop/components/BootScreen'
 import TopBar from '../features/desktop/components/TopBar'
 import DesktopIcons from '../features/desktop/components/DesktopIcons'
@@ -125,6 +126,9 @@ export default function App() {
             position: 'relative',
           }}
         >
+          {/* Background — pixel wallpaper + doodles + parallax (z=0, behind everything) */}
+          <DesktopBackground />
+
           {/* Top bar */}
           <TopBar
             activeSection={getActiveNavSection()}
@@ -170,18 +174,8 @@ export default function App() {
               overflow: 'hidden',
               minWidth: 0,
             }}>
-              {/* This space is left for wallpaper to show through under windows */}
-              <div style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0.05,
-                pointerEvents: 'none',
-                userSelect: 'none',
-              }}>
-                <span style={{ fontSize: 24, fontFamily: 'var(--font-display)', fontWeight: 800 }}>PushkarOS</span>
-              </div>
+            {/* Empty canvas — wallpaper, doodles and wordmark all live in DesktopBackground */}
+            <div style={{ flex: 1 }} />
             </div>
 
             {/* Right: Widgets */}
