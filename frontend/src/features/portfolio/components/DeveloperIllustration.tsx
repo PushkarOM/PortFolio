@@ -1,25 +1,41 @@
-export default function DeveloperIllustration() {
+interface Props {
+  isMobile?: boolean
+}
+
+export default function DeveloperIllustration({ isMobile }: Props) {
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: isMobile ? 'auto' : '100%',
+      padding: isMobile ? '12px 0 8px 0' : 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       {/* Floating tech badges */}
-      <div className="float-a" style={{ position: 'absolute', top: '8%', left: '8%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-deep)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', top: isMobile ? '2%' : '8%', left: isMobile ? '2%' : '8%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-deep)', fontWeight: 500, zIndex: 2 }}>
         Python 🐍
       </div>
-      <div className="float-b" style={{ position: 'absolute', top: '12%', right: '6%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-b" style={{ position: 'absolute', top: isMobile ? '4%' : '12%', right: isMobile ? '2%' : '6%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
         PyTorch 🔥
       </div>
-      <div className="float-c" style={{ position: 'absolute', bottom: '18%', left: '4%', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
-        {'</>'}  React
+      <div className="float-c" style={{ position: 'absolute', bottom: isMobile ? '6%' : '18%', left: isMobile ? '1%' : '4%', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+        {'</>'} React
       </div>
-      <div className="float-a" style={{ position: 'absolute', bottom: '22%', right: '5%', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-bright)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', bottom: isMobile ? '8%' : '22%', right: isMobile ? '1%' : '5%', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-bright)', fontWeight: 500, zIndex: 2 }}>
         🐳 Docker
       </div>
-      <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
-        {'{ }'}
-      </div>
-      <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
-        ⚡ GPU
-      </div>
+      {!isMobile && (
+        <>
+          <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
+            {'{ }'}
+          </div>
+          <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+            ⚡ GPU
+          </div>
+        </>
+      )}
 
       {/* Small floating stars */}
       {[
@@ -49,8 +65,8 @@ export default function DeveloperIllustration() {
         style={{
           position: 'relative',
           zIndex: 0,
-          width: '90%',
-          maxWidth: 320,
+          width: isMobile ? '80%' : '90%',
+          maxWidth: isMobile ? 200 : 320,
           height: 'auto',
           objectFit: 'contain',
           imageRendering: 'pixelated',

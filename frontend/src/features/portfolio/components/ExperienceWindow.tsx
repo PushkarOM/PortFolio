@@ -32,12 +32,12 @@ export default function ExperienceWindow() {
             borderLeft: `3px solid ${job.color}`,
             borderRadius: 8, padding: '14px 16px',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
               <div>
                 <div style={{ fontSize: 14, fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>{job.role}</div>
                 <div style={{ fontSize: 12, fontFamily: 'var(--font-body)', color: job.color, fontWeight: 500 }}>{job.company}</div>
               </div>
-              <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 4, padding: '2px 8px' }}>{job.period}</span>
+              <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', background: 'var(--bg-window)', border: '1px solid var(--border-light)', borderRadius: 4, padding: '2px 8px', whiteSpace: 'nowrap' }}>{job.period}</span>
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 10 }}>
               {job.achievements.map((a, j) => (

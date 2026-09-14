@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { portfolioApi } from '../../../shared/services/api'
 
 export default function ContactWindow() {
@@ -9,6 +9,13 @@ export default function ContactWindow() {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -60,9 +67,9 @@ export default function ContactWindow() {
   const isDisabled = sending || !isFormValid
 
   return (
-    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 260px', minHeight: 0, height: '100%', background: 'var(--bg-window)' }}>
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 260px', minHeight: 0, height: '100%', background: 'var(--bg-window)', overflowY: isMobile ? 'auto' : 'hidden' }}>
       {/* Compose */}
-      <div style={{ padding: '20px 24px', overflowY: 'auto' }}>
+      <div style={{ padding: isMobile ? '14px 16px' : '20px 24px', overflowY: isMobile ? 'visible' : 'auto' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px 0', letterSpacing: '-0.03em' }}>
           Send a Message
         </h2>
@@ -81,7 +88,7 @@ export default function ContactWindow() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
               <div>
                 <label style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', display: 'block', marginBottom: 5 }}>Name</label>
                 <input style={inputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="Your name" disabled={sending} />
@@ -133,7 +140,15 @@ export default function ContactWindow() {
       </div>
 
       {/* Sidebar */}
-      <div style={{ borderLeft: '1px solid var(--border-light)', padding: '20px 16px', background: 'var(--bg-window-alt)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{
+        borderLeft: isMobile ? 'none' : '1px solid var(--border-light)',
+        borderTop: isMobile ? '1px solid var(--border-light)' : 'none',
+        padding: isMobile ? '14px 16px' : '20px 16px',
+        background: 'var(--bg-window-alt)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}>
         <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
           Find me on
         </div>
@@ -151,9 +166,9 @@ export default function ContactWindow() {
             }}
           >
             <span style={{ fontSize: 18 }}>{link.icon}</span>
-            <div>
+            <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: 12, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--text-primary)' }}>{link.label}</div>
-              <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>{link.value}</div>
+              <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{link.value}</div>
             </div>
           </div>
         ))}

@@ -224,6 +224,7 @@ function SkylineLayer({
   cloudFill,
   showClouds,
   opacity,
+  isMobile,
 }: {
   buildings: [number, number, number][]
   dots: { x: number; y: number }[]
@@ -233,6 +234,7 @@ function SkylineLayer({
   cloudFill: string
   showClouds: boolean
   opacity: number
+  isMobile?: boolean
 }) {
   return (
     <svg
@@ -240,7 +242,16 @@ function SkylineLayer({
       width="100%"
       height="200"
       preserveAspectRatio="xMidYMax meet"
-      style={{ position: 'absolute', bottom: 0, left: 0, right: 0, pointerEvents: 'none', opacity }}
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        pointerEvents: 'none',
+        opacity,
+        transform: isMobile ? 'scale(1.75)' : 'none',
+        transformOrigin: 'bottom center',
+      }}
     >
       {showClouds && CLOUDS.map(({ cx, cy }, i) => (
         <g key={i}>
@@ -428,6 +439,13 @@ function PixelDoodles({ theme }: { theme: Theme }) {
 export default function DesktopBackground() {
   const theme = useCurrentTheme()
   const cfg = THEME_CONFIG[theme]
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const nearLitSet = useFlicker(TOTAL_NEAR)
   const farLitSet  = useFlicker(TOTAL_FAR)
@@ -484,7 +502,15 @@ export default function DesktopBackground() {
           width="100%"
           height="280"
           preserveAspectRatio="xMidYMax meet"
-          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, pointerEvents: 'none' }}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            pointerEvents: 'none',
+            transform: isMobile ? 'scale(1.65)' : 'none',
+            transformOrigin: 'bottom center',
+          }}
         >
           <HorizonWordmark theme={theme} />
         </svg>
@@ -504,6 +530,7 @@ export default function DesktopBackground() {
           cloudFill={cfg.cloudFill}
           showClouds={true}
           opacity={cfg.skylineOpacity * 0.65}
+          isMobile={isMobile}
         />
       </div>
 
@@ -521,6 +548,7 @@ export default function DesktopBackground() {
           cloudFill={cfg.cloudFill}
           showClouds={false}
           opacity={cfg.skylineOpacity}
+          isMobile={isMobile}
         />
       </div>
 

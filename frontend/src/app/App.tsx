@@ -85,6 +85,7 @@ export default function App() {
       case 'projects': return 'Projects'
       case 'experience': return 'Experience'
       case 'skills': return 'Skills'
+      case 'resume': return 'Resume'
       case 'contact': return 'Contact'
       default: return 'Home'
     }
@@ -96,6 +97,7 @@ export default function App() {
       'Projects': 'projects',
       'Experience': 'experience',
       'Skills': 'skills',
+      'Resume': 'resume',
       'Contact': 'contact',
     }
     const winId = sectionToWindowId[section]
