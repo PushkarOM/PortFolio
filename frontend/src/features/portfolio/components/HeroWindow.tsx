@@ -49,6 +49,8 @@ export default function HeroWindow({ onOpenTerminal, onOpenProjects }: Props) {
         flex: 1,
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gridTemplateRows: isMobile ? 'auto auto' : undefined,
+        alignContent: isMobile ? 'start' : undefined,
         minHeight: 0,
         overflow: isMobile ? 'auto' : 'hidden',
       }}>

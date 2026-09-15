@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useWindowManager, WindowId } from '../../context/WindowContext'
+import PixelDissolveOverlay from './PixelDissolveOverlay'
 
 interface WindowFrameProps {
   id: WindowId
@@ -13,6 +14,7 @@ interface WindowFrameProps {
   y: number
   width: number
   height: number
+  spawnOrigin?: { x: number; y: number }
   children: React.ReactNode
 }
 
@@ -27,6 +29,7 @@ export default function WindowFrame({
   y,
   width,
   height,
+  spawnOrigin,
   children,
 }: WindowFrameProps) {
   const {
@@ -44,7 +47,7 @@ export default function WindowFrame({
   const [localHeight, setLocalHeight] = useState(height)
   const [localX, setLocalX] = useState(x)
   const [localY, setLocalY] = useState(y)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
 
   const isDraggingRef = React.useRef(false)
   const posRef = React.useRef({ x, y })
@@ -144,31 +147,41 @@ export default function WindowFrame({
     document.addEventListener('mouseup', handleMouseUp)
   }
 
-  if (!isOpen || isMinimized) return null
-
   const isFocused = activeWindowId === id
   const showMaximized = isMaximized || isMobile
 
+  const getTransformOrigin = () => {
+    if (!spawnOrigin) return 'center center'
+    const windowLeft = showMaximized ? 0 : localX
+    const windowTop = showMaximized ? 36 : localY
+    const relX = spawnOrigin.x - windowLeft
+    const relY = spawnOrigin.y - windowTop
+    return `${relX}px ${relY}px`
+  }
+
   return (
     <motion.div
-      initial={{ scale: 0.95, opacity: 0 }}
+      initial={{ scale: 0.94, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.95, opacity: 0 }}
-      transition={{ type: 'spring', damping: 20, stiffness: 250 }}
+      exit={{ scale: 0.94, opacity: 0 }}
+      transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
       style={{
         position: 'absolute',
         left: showMaximized ? 0 : localX,
         top: showMaximized ? 36 : localY, // 36px offset for TopBar
         width: showMaximized ? '100%' : localWidth,
-        height: showMaximized ? 'calc(100vh - 36px - 68px)' : localHeight, // dock is 68px, topbar is 36px
+        height: showMaximized ? 'calc(100dvh - 36px - 68px)' : localHeight, // dock is 68px, topbar is 36px
         zIndex: zIndex,
         display: 'flex',
         flexDirection: 'column',
         pointerEvents: 'auto',
+        transformOrigin: getTransformOrigin(),
       }}
       onMouseDown={() => focusWindow(id)}
       className={`window ${isFocused ? 'glow-blue' : ''}`}
     >
+      <PixelDissolveOverlay />
+
       {/* Title bar */}
       <div
         className="window-title-bar"

@@ -14,24 +14,24 @@ export default function DeveloperIllustration({ isMobile }: Props) {
       justifyContent: 'center',
     }}>
       {/* Floating tech badges */}
-      <div className="float-a" style={{ position: 'absolute', top: isMobile ? '2%' : '8%', left: isMobile ? '2%' : '8%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-deep)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', top: isMobile ? '2%' : '8%', left: isMobile ? '2%' : '8%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-bright)', fontWeight: 500, zIndex: 2 }}>
         Python 🐍
       </div>
-      <div className="float-b" style={{ position: 'absolute', top: isMobile ? '4%' : '12%', right: isMobile ? '2%' : '6%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-b" style={{ position: 'absolute', top: isMobile ? '4%' : '12%', right: isMobile ? '2%' : '6%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
         PyTorch 🔥
       </div>
-      <div className="float-c" style={{ position: 'absolute', bottom: isMobile ? '6%' : '18%', left: isMobile ? '1%' : '4%', background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-c" style={{ position: 'absolute', bottom: isMobile ? '6%' : '18%', left: isMobile ? '1%' : '4%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
         {'</>'} React
       </div>
-      <div className="float-a" style={{ position: 'absolute', bottom: isMobile ? '8%' : '22%', right: isMobile ? '1%' : '5%', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-bright)', fontWeight: 500, zIndex: 2 }}>
+      <div className="float-a" style={{ position: 'absolute', bottom: isMobile ? '8%' : '22%', right: isMobile ? '1%' : '5%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '3px 7px', fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-mono)', color: 'var(--cyan)', fontWeight: 500, zIndex: 2 }}>
         🐳 Docker
       </div>
       {!isMobile && (
         <>
-          <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
+          <div className="float-b" style={{ position: 'absolute', top: '38%', left: '2%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontWeight: 500, zIndex: 2 }}>
             {'{ }'}
           </div>
-          <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
+          <div className="float-c" style={{ position: 'absolute', top: '42%', right: '2%', background: 'var(--bg-window-alt)', border: '1px solid var(--border-light)', borderRadius: 8, padding: '4px 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue-primary)', fontWeight: 500, zIndex: 2 }}>
             ⚡ GPU
           </div>
         </>
@@ -68,6 +68,7 @@ export default function DeveloperIllustration({ isMobile }: Props) {
           width: isMobile ? '80%' : '90%',
           maxWidth: isMobile ? 200 : 320,
           height: 'auto',
+          aspectRatio: '1 / 1',
           objectFit: 'contain',
           imageRendering: 'pixelated',
         }}
