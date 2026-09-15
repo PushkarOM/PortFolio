@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { soundService } from '../shared/services/soundService'
 
 export type WindowId = 'home' | 'projects' | 'experience' | 'skills' | 'resume' | 'contact' | 'studio' | 'terminal'
 
@@ -231,6 +232,7 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   }
 
   const openWindow = (id: WindowId) => {
+    soundService.playWindowOpen()
     focusAndNavigate(id)
   }
 
@@ -239,6 +241,7 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   }
 
   const closeWindow = (id: WindowId) => {
+    soundService.playWindowClose()
     setWindows(prev => {
       const updated = prev.map(w => (w.id === id ? { ...w, isOpen: false } : w))
       const remainingOpen = updated.filter(w => w.isOpen && !w.isMinimized)
@@ -274,6 +277,7 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   }
 
   const minimizeWindow = (id: WindowId) => {
+    soundService.playWindowClose()
     setWindows(prev => {
       const updated = prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w))
       const openWins = updated.filter(w => w.isOpen && !w.isMinimized)

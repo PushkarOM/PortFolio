@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { soundService, MUSIC_TRACKS } from '../../../shared/services/soundService'
 
 type Theme = 'aurora' | 'midnight' | 'retro' | 'matrix'
 
@@ -16,6 +17,181 @@ const THEMES: { id: Theme; label: string; dot: string }[] = [
   { id: 'retro', label: 'RetroOS', dot: '#F59E0B' },
   { id: 'matrix', label: 'Matrix', dot: '#34D399' },
 ]
+
+function AudioControlWidget() {
+  const [open, setOpen] = useState(false)
+  const [isMuted, setIsMuted] = useState(() => soundService.getMuted())
+  const [volume, setVolume] = useState(() => soundService.getVolume())
+  const [activeTrack, setActiveTrack] = useState(() => soundService.getActiveTrack())
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-audio-control]')) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const toggleMute = () => {
+    const next = !isMuted
+    setIsMuted(next)
+    soundService.setMuted(next)
+  }
+
+  const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value)
+    setVolume(val)
+    soundService.setVolume(val)
+    if (val > 0 && isMuted) {
+      setIsMuted(false)
+      soundService.setMuted(false)
+    }
+  }
+
+  const selectTrack = (trackId: number) => {
+    setActiveTrack(trackId)
+    soundService.setActiveTrack(trackId)
+    if (trackId >= 0 && isMuted) {
+      setIsMuted(false)
+      soundService.setMuted(false)
+    }
+  }
+
+  const currentTrackObj = MUSIC_TRACKS.find(t => t.id === activeTrack)
+
+  return (
+    <div style={{ position: 'relative' }} data-audio-control>
+      <button
+        onClick={() => setOpen(o => !o)}
+        title="Sound & Music Controls"
+        style={{
+          background: activeTrack >= 0 && !isMuted ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.07)',
+          border: '1px solid ' + (activeTrack >= 0 && !isMuted ? 'rgba(96, 165, 250, 0.4)' : 'rgba(255,255,255,0.1)'),
+          borderRadius: 5,
+          color: activeTrack >= 0 && !isMuted ? '#60A5FA' : 'rgba(148,163,184,0.8)',
+          fontSize: 10,
+          fontFamily: 'var(--font-mono)',
+          padding: '2px 8px',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 5,
+        }}
+      >
+        {isMuted ? (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="1" y1="1" x2="23" y2="23" />
+            <path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+          </svg>
+        ) : (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        )}
+        <span>{activeTrack >= 0 && !isMuted ? `🎵 ${currentTrackObj?.name}` : 'Audio'}</span>
+        <span style={{ opacity: 0.5 }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: '100%', right: 0, marginTop: 4,
+          background: '#1E2333',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 10,
+          padding: 12,
+          boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+          zIndex: 999,
+          width: 220,
+        }}>
+          {/* Mute & Volume header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <button
+              onClick={toggleMute}
+              style={{
+                background: isMuted ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid ' + (isMuted ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)'),
+                borderRadius: 6,
+                color: isMuted ? '#FCA5A5' : '#60A5FA',
+                padding: '4px 8px',
+                fontSize: 11,
+                fontFamily: 'var(--font-mono)',
+                cursor: 'pointer',
+              }}
+            >
+              {isMuted ? '🔇 Muted' : '🔊 Sound On'}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={volume}
+              onChange={handleVolume}
+              style={{ flex: 1, accentColor: '#3B82F6', cursor: 'pointer' }}
+            />
+          </div>
+
+          {/* Track Switcher */}
+          <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(148,163,184,0.7)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Background Music Switcher
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <button
+              onClick={() => selectTrack(-1)}
+              style={{
+                textAlign: 'left',
+                background: activeTrack === -1 ? 'rgba(255,255,255,0.1)' : 'transparent',
+                border: '1px solid ' + (activeTrack === -1 ? 'rgba(255,255,255,0.2)' : 'transparent'),
+                borderRadius: 6,
+                color: activeTrack === -1 ? '#fff' : 'rgba(148,163,184,0.8)',
+                fontSize: 11,
+                fontFamily: 'var(--font-mono)',
+                padding: '6px 10px',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}
+            >
+              <span>🚫 Off</span>
+              {activeTrack === -1 && <span style={{ fontSize: 10, color: 'var(--mint)' }}>✓ Active</span>}
+            </button>
+
+            {MUSIC_TRACKS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => selectTrack(t.id)}
+                style={{
+                  textAlign: 'left',
+                  background: activeTrack === t.id && !isMuted ? 'rgba(37,99,235,0.25)' : 'transparent',
+                  border: '1px solid ' + (activeTrack === t.id && !isMuted ? 'rgba(59,130,246,0.4)' : 'transparent'),
+                  borderRadius: 6,
+                  color: activeTrack === t.id && !isMuted ? '#60A5FA' : 'rgba(148,163,184,0.85)',
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600 }}>🎵 {t.name}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>{t.genre}</div>
+                </div>
+                {activeTrack === t.id && !isMuted && <span style={{ fontSize: 10, color: 'var(--mint)' }}>▶ Playing</span>}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 9, color: 'rgba(148,163,184,0.5)', fontFamily: 'var(--font-mono)' }}>
+            Royalty-Free CC-BY Retro Audio Engine
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function Clock() {
   const [time, setTime] = useState(new Date())
@@ -233,6 +409,9 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
             </div>
           </>
         )}
+
+        {/* Sound & Music Controls */}
+        <AudioControlWidget />
 
         {/* Theme toggle */}
         <div style={{ position: 'relative' }} data-theme-picker>

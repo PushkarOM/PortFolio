@@ -38,8 +38,8 @@ const IDLE_PAUSE_MIN  = 2800
 const IDLE_PAUSE_MAX  = 4800
 
 // Physics constants
-const START_THRESHOLD = 80   // Wake up & start walking
-const STOP_THRESHOLD  = 18   // Reach cursor & stop
+const START_THRESHOLD = 150  // Wake up & start walking when cursor moves > 150px away
+const STOP_THRESHOLD  = 88   // Stop walking & sit 88px away from cursor (generous buffer distance)
 const MAX_SPEED       = 3.2  // Max speed (px/frame)
 const APPROACH_RATE   = 0.13 // Deceleration rate near target
 const FLIP_DEADZONE   = 4    // Deadzone to prevent rapid facing flips
@@ -108,10 +108,24 @@ export default function NekoKat() {
       const dt = Math.min(ts - lastTsRef.current, 64)
       lastTsRef.current = ts
 
+      const winW = typeof window !== 'undefined' ? window.innerWidth : 1200
+      const winH = typeof window !== 'undefined' ? window.innerHeight : 800
+
+      // Viewport & TopBar boundaries:
+      // TopBar is 36px high; cat is ~65px tall. Clamping pos.y >= 102px keeps cat ears strictly below TopBar.
+      const TOPBAR_MIN_Y = 102
+      const SCREEN_MARGIN_X = 40
+      const SCREEN_MARGIN_BOTTOM = 24
+
       const pos    = posRef.current
-      const target = targetRef.current
-      const dx     = target.x - pos.x
-      const dy     = target.y - pos.y
+      const rawTarget = targetRef.current
+
+      // Clamped target destination inside valid desktop area
+      const targetX = Math.max(SCREEN_MARGIN_X, Math.min(winW - SCREEN_MARGIN_X, rawTarget.x))
+      const targetY = Math.max(TOPBAR_MIN_Y, Math.min(winH - SCREEN_MARGIN_BOTTOM, rawTarget.y))
+
+      const dx     = targetX - pos.x
+      const dy     = targetY - pos.y
       const dist   = Math.hypot(dx, dy)
 
       const currentState = stateRef.current
@@ -152,6 +166,10 @@ export default function NekoKat() {
           const spd = Math.min(MAX_SPEED, dist * APPROACH_RATE) * (dt / 16.67)
           pos.x += (dx / dist) * spd
           pos.y += (dy / dist) * spd
+
+          // Clamp position strictly within desktop bounds
+          pos.x = Math.max(SCREEN_MARGIN_X, Math.min(winW - SCREEN_MARGIN_X, pos.x))
+          pos.y = Math.max(TOPBAR_MIN_Y, Math.min(winH - SCREEN_MARGIN_BOTTOM, pos.y))
 
           // Facing direction with deadzone
           if (dx > FLIP_DEADZONE) flipRef.current = false
