@@ -237,6 +237,8 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   }
 
   const focusWindow = (id: WindowId) => {
+    const target = windows.find(w => w.id === id)
+    if (!target || !target.isOpen) return
     focusAndNavigate(id)
   }
 

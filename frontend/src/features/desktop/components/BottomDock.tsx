@@ -16,6 +16,7 @@ interface Props {
   onOpenResume: () => void
   onOpenSettings: () => void
   openWindowIds: Set<string>
+  isHidden?: boolean
 }
 
 function GitHubIcon() {
@@ -78,7 +79,7 @@ function ResumeIcon() {
   )
 }
 
-export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings, openWindowIds }: Props) {
+export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenContact, onOpenResume, onOpenSettings, openWindowIds, isHidden }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const [bouncingId, setBouncingId] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
@@ -117,6 +118,10 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
       justifyContent: 'center',
       paddingBottom: isMobile ? 4 : 8,
       flexShrink: 0,
+      transform: isHidden ? 'translateY(120%)' : 'translateY(0)',
+      opacity: isHidden ? 0 : 1,
+      pointerEvents: isHidden ? 'none' : 'auto',
+      transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out',
     }}>
       <div style={{
         display: 'flex',

@@ -22,8 +22,8 @@ export default function WindowFrame({
   id,
   title,
   zIndex,
-  isOpen: _isOpen,
-  isMinimized: _isMinimized,
+  isOpen,
+  isMinimized,
   isMaximized,
   x,
   y,
@@ -79,7 +79,7 @@ export default function WindowFrame({
 
   // Custom dragging handler using PointerEvents
   const handleDragPointerDown = (e: React.PointerEvent) => {
-    if (showMaximized) return
+    if (!isOpen || showMaximized) return
     if (e.button !== 0) return // left click only
 
     e.preventDefault()
@@ -117,6 +117,7 @@ export default function WindowFrame({
 
   // Mouse resizing handler
   const handleResizeMouseDown = (e: React.MouseEvent) => {
+    if (!isOpen) return
     e.preventDefault()
     e.stopPropagation()
     if (!isFocused) focusWindow(id)
@@ -170,14 +171,18 @@ export default function WindowFrame({
         left: showMaximized ? 0 : localX,
         top: showMaximized ? 36 : localY, // 36px offset for TopBar
         width: showMaximized ? '100%' : localWidth,
-        height: showMaximized ? 'calc(100dvh - 36px - 68px)' : localHeight, // dock is 68px, topbar is 36px
+        height: isMaximized
+          ? 'calc(100dvh - 36px)'
+          : showMaximized
+          ? 'calc(100dvh - 36px - 68px)'
+          : localHeight,
         zIndex: zIndex,
         display: 'flex',
         flexDirection: 'column',
-        pointerEvents: 'auto',
+        pointerEvents: isOpen && !isMinimized ? 'auto' : 'none',
         transformOrigin: getTransformOrigin(),
       }}
-      onMouseDown={() => { if (!isFocused) focusWindow(id) }}
+      onMouseDown={() => { if (isOpen && !isFocused) focusWindow(id) }}
       className={`window ${isFocused ? 'glow-blue' : ''}`}
     >
       <PixelDissolveOverlay />

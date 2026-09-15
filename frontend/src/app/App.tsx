@@ -114,6 +114,11 @@ export default function App() {
     [windows]
   )
 
+  const hasMaximizedWindow = useMemo(
+    () => windows.some(w => w.isOpen && !w.isMinimized && w.isMaximized),
+    [windows]
+  )
+
   // Stable callback for DesktopIcons — avoids recreating on every App render
   const handleDesktopIconOpen = useCallback((id: string) => {
     const mappedId = id.toLowerCase()
@@ -203,6 +208,7 @@ export default function App() {
             onOpenResume={() => openWindow('resume')}
             onOpenSettings={() => openWindow('studio')}
             openWindowIds={openWindowIds}
+            isHidden={hasMaximizedWindow}
           />
 
           {/* Draggable Windows Overlay */}
