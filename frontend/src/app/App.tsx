@@ -14,6 +14,7 @@ import SkillsWindow from '../features/portfolio/components/SkillsWindow'
 import ResumeWindow from '../features/portfolio/components/ResumeWindow'
 import ContactWindow from '../features/portfolio/components/ContactWindow'
 import WindowFrame from '../shared/components/WindowFrame'
+import NekoKat from '../features/desktop/components/NekoKat'
 import { useWindowManager, WindowId } from '../context/WindowContext'
 
 // F3: Lazy-load StudioCMS — it's heavy and only needed when the user opens it
@@ -269,6 +270,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Neko cat — follows cursor, pointer-events:none, skips if reduced-motion */}
+      {bootDone && <NekoKat />}
     </>
   )
 }
