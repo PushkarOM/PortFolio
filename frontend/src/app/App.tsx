@@ -15,6 +15,7 @@ import ResumeWindow from '../features/portfolio/components/ResumeWindow'
 import ContactWindow from '../features/portfolio/components/ContactWindow'
 import WindowFrame from '../shared/components/WindowFrame'
 import NekoKat from '../features/desktop/components/NekoKat'
+import LockScreen from '../features/desktop/components/LockScreen'
 import { useWindowManager, WindowId } from '../context/WindowContext'
 
 // F3: Lazy-load StudioCMS — it's heavy and only needed when the user opens it
@@ -118,8 +119,10 @@ export default function App() {
       <BootScreen onComplete={handleBootComplete} />
 
       {bootDone && (
-        <div
-          className="desktop-grid desktop-reveal"
+        <>
+          <LockScreen idleTimeoutMs={60000} />
+          <div
+            className="desktop-grid desktop-reveal"
           style={{
             width: '100vw',
             height: '100dvh',
@@ -269,6 +272,7 @@ export default function App() {
             </AnimatePresence>
           </div>
         </div>
+      </>
       )}
 
       {/* Neko cat — follows cursor, pointer-events:none, skips if reduced-motion */}

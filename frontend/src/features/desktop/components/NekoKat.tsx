@@ -325,7 +325,7 @@ export default function NekoKat() {
         pointerEvents:  'auto',
         cursor:         'pointer',
         userSelect:     'none',
-        zIndex:         99999,
+        zIndex:         999,
         willChange:     'transform',
         transform:      `translate(${Math.round(posRef.current.x - CANVAS_W / 2)}px, ${Math.round(posRef.current.y - CANVAS_H)}px)`,
       }}
