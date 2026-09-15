@@ -70,7 +70,7 @@ export const DEFAULT_EXPERIENCES: Experience[] = [
 export const DEFAULT_SKILLS: SkillCategory[] = [
   {
     name: 'Languages',
-    color: '#2563EB',
+    color: 'var(--blue-primary)',
     skills: [
       { name: 'Python', level: 95 },
       { name: 'TypeScript', level: 82 },
@@ -80,7 +80,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'ML / DL',
-    color: '#3B82F6',
+    color: 'var(--blue-bright)',
     skills: [
       { name: 'PyTorch', level: 90 },
       { name: 'TensorFlow', level: 78 },
@@ -90,7 +90,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'Frontend',
-    color: '#60A5FA',
+    color: 'var(--cyan)',
     skills: [
       { name: 'React', level: 85 },
       { name: 'Next.js', level: 78 },
@@ -99,7 +99,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'Backend',
-    color: '#1E3A8A',
+    color: 'var(--mint)',
     skills: [
       { name: 'FastAPI', level: 88 },
       { name: 'Django', level: 82 },
@@ -109,7 +109,7 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
   },
   {
     name: 'DevOps / Cloud',
-    color: '#475569',
+    color: 'var(--purple)',
     skills: [
       { name: 'Docker', level: 84 },
       { name: 'AWS', level: 72 },
@@ -121,14 +121,14 @@ export const DEFAULT_SKILLS: SkillCategory[] = [
 
 // NowBuildingItem runtime shape: { id, text, dot } — matches SideWidgets.tsx and StudioCMS.tsx
 export const DEFAULT_NOW_BUILDING: NowBuildingItem[] = [
-  { id: '1', text: 'RepoSage — Agentic RAG for codebases', dot: '#2563EB' },
-  { id: '2', text: 'SkillSwap — MERN community learning platform', dot: '#3B82F6' },
-  { id: '3', text: 'EmotionSense — Multimodal emotion AI', dot: '#60A5FA' },
+  { id: '1', text: 'RepoSage — Agentic RAG for codebases', dot: 'var(--blue-primary)' },
+  { id: '2', text: 'SkillSwap — MERN community learning platform', dot: 'var(--blue-bright)' },
+  { id: '3', text: 'EmotionSense — Multimodal emotion AI', dot: 'var(--cyan)' },
 ];
 
 // LearningItem runtime shape: { id, name, pct, color } — matches SideWidgets.tsx and StudioCMS.tsx
 export const DEFAULT_LEARNING: LearningItem[] = [
-  { id: '1', name: 'LangChain Agents & Tools', pct: 75, color: '#2563EB' },
-  { id: '2', name: 'Kubernetes Operator Pattern', pct: 30, color: '#3B82F6' },
-  { id: '3', name: 'CUDA C++ Memory Architecture', pct: 65, color: '#60A5FA' },
+  { id: '1', name: 'LangChain Agents & Tools', pct: 75, color: 'var(--blue-primary)' },
+  { id: '2', name: 'Kubernetes Operator Pattern', pct: 30, color: 'var(--blue-bright)' },
+  { id: '3', name: 'CUDA C++ Memory Architecture', pct: 65, color: 'var(--cyan)' },
 ];

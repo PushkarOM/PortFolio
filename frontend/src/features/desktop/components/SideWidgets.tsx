@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { portfolioApi, NowBuildingItem, LearningItem } from '../../../shared/services/api'
+import { getThemeColor } from '../../../shared/utils/colorUtils'
 
 function WidgetShell({ title, children, accent = '#3B82F6', className, style }: {
   title: string
@@ -111,11 +112,69 @@ function NowBuilding() {
     <WidgetShell title="now_building.md" accent="var(--blue-bright)" style={{ animationDelay: '80ms' }}>
       {items.map((item, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: item.dot, flexShrink: 0 }} />
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: getThemeColor(item.dot), flexShrink: 0 }} />
           <span style={{ fontSize: 11, fontFamily: 'var(--font-body)', color: 'var(--text-secondary)' }}>{item.text}</span>
         </div>
       ))}
     </WidgetShell>
+  )
+}
+function CountUpNumber({ value, duration = 1000 }: { value: string | number; duration?: number }) {
+  const [displayVal, setDisplayVal] = useState<string>('0')
+  const hasAnimated = useRef(false)
+
+  useEffect(() => {
+    if (hasAnimated.current) return
+    hasAnimated.current = true
+
+    const str = value.toString()
+    if (str === '—') {
+      setDisplayVal('—')
+      return
+    }
+
+    const match = str.match(/^(\d+)(.*)$/)
+    if (!match) {
+      setDisplayVal(str)
+      return
+    }
+
+    const targetNum = parseInt(match[1], 10)
+    const suffix = match[2] || ''
+    const startTime = performance.now()
+
+    const step = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const ease = 1 - Math.pow(1 - progress, 3) // easeOutCubic
+      const current = Math.floor(ease * targetNum)
+      setDisplayVal(`${current}${suffix}`)
+
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      } else {
+        setDisplayVal(`${targetNum}${suffix}`)
+      }
+    }
+
+    requestAnimationFrame(step)
+  }, [value, duration])
+
+  return <>{displayVal}</>
+}
+
+function LearningProgressBar({ pct, color }: { pct: number; color: string }) {
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(pct), 60)
+    return () => clearTimeout(t)
+  }, [pct])
+
+  return (
+    <div style={{ height: 3, background: 'var(--border-light)', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ width: `${width}%`, height: '100%', background: color, borderRadius: 2, transition: 'width 0.85s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+    </div>
   )
 }
 
@@ -145,7 +204,9 @@ function GitHubStats() {
             border: '1px solid var(--border-light)',
             borderRadius: 6, padding: '8px 10px',
           }}>
-            <div style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 700, color: s.color, lineHeight: 1 }}>
+              <CountUpNumber value={s.value} />
+            </div>
             <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 4 }}>{s.label}</div>
           </div>
         ))}
@@ -181,9 +242,7 @@ function CurrentlyLearning() {
             <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>{item.name}</span>
             <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>{item.pct}%</span>
           </div>
-          <div style={{ height: 3, background: 'var(--border-light)', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: 2, transition: 'width 1s ease' }} />
-          </div>
+          <LearningProgressBar pct={item.pct} color={getThemeColor(item.color)} />
         </div>
       ))}
     </WidgetShell>

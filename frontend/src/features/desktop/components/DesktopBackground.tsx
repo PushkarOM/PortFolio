@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import MatrixRain from './MatrixRain'
 
 // ─── Colour helpers ──────────────────────────────────────────────────────────
 // We need per-theme opacity/color values because this component uses inline SVG
@@ -495,6 +496,9 @@ export default function DesktopBackground() {
       aria-hidden="true"
       style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}
     >
+      {/* Matrix Rain Easter Egg (only active in Matrix theme) */}
+      {theme === 'matrix' && <MatrixRain />}
+
       {/* Layer 0 — horizon wordmark behind buildings */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <svg

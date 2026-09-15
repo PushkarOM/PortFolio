@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import DesktopBackground from '../features/desktop/components/DesktopBackground'
 import BootScreen from '../features/desktop/components/BootScreen'
 import TopBar from '../features/desktop/components/TopBar'
@@ -13,6 +14,7 @@ import SkillsWindow from '../features/portfolio/components/SkillsWindow'
 import ResumeWindow from '../features/portfolio/components/ResumeWindow'
 import ContactWindow from '../features/portfolio/components/ContactWindow'
 import WindowFrame from '../shared/components/WindowFrame'
+import NekoKat from '../features/desktop/components/NekoKat'
 import { useWindowManager, WindowId } from '../context/WindowContext'
 
 // F3: Lazy-load StudioCMS — it's heavy and only needed when the user opens it
@@ -120,7 +122,7 @@ export default function App() {
           className="desktop-grid desktop-reveal"
           style={{
             width: '100vw',
-            height: '100vh',
+            height: '100dvh',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -202,69 +204,75 @@ export default function App() {
 
           {/* Draggable Windows Overlay */}
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10, overflow: 'hidden' }}>
-            {windows.map(win => {
-              if (!win.isOpen) return null
+            <AnimatePresence>
+              {windows
+                .filter(win => win.isOpen && !win.isMinimized)
+                .map(win => {
+                  const renderContent = () => {
+                    switch (win.id) {
+                      case 'home':
+                        return (
+                          <HeroWindow
+                            onOpenTerminal={() => openWindow('terminal')}
+                            onOpenProjects={() => openWindow('projects')}
+                          />
+                        )
+                      case 'projects':
+                        return <ProjectsWindow />
+                      case 'experience':
+                        return <ExperienceWindow />
+                      case 'skills':
+                        return <SkillsWindow />
+                      case 'resume':
+                        return <ResumeWindow />
+                      case 'contact':
+                        return <ContactWindow />
+                      case 'terminal':
+                        return <TerminalWindow onThemeChange={handleThemeChange} />
+                      case 'studio':
+                        // F3: StudioCMS is lazy-loaded — show a minimal spinner while the chunk loads
+                        return (
+                          <Suspense fallback={
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
+                              Loading Studio CMS...
+                            </div>
+                          }>
+                            <StudioCMS />
+                          </Suspense>
+                        )
+                      default:
+                        return null
+                    }
+                  }
 
-              const renderContent = () => {
-                switch (win.id) {
-                  case 'home':
-                    return (
-                      <HeroWindow
-                        onOpenTerminal={() => openWindow('terminal')}
-                        onOpenProjects={() => openWindow('projects')}
-                      />
-                    )
-                  case 'projects':
-                    return <ProjectsWindow />
-                  case 'experience':
-                    return <ExperienceWindow />
-                  case 'skills':
-                    return <SkillsWindow />
-                  case 'resume':
-                    return <ResumeWindow />
-                  case 'contact':
-                    return <ContactWindow />
-                  case 'terminal':
-                    return <TerminalWindow onThemeChange={handleThemeChange} />
-                  case 'studio':
-                    // F3: StudioCMS is lazy-loaded — show a minimal spinner while the chunk loads
-                    return (
-                      <Suspense fallback={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
-                          Loading Studio CMS...
-                        </div>
-                      }>
-                        <StudioCMS />
-                      </Suspense>
-                    )
-                  default:
-                    return null
-                }
-              }
-
-              return (
-                <WindowFrame
-                  key={win.id}
-                  id={win.id}
-                  title={win.title}
-                  zIndex={win.zIndex}
-                  isOpen={win.isOpen}
-                  isMinimized={win.isMinimized}
-                  isMaximized={win.isMaximized}
-                  x={win.x}
-                  y={win.y}
-                  width={win.width}
-                  height={win.height}
-                >
-                  <div style={{ pointerEvents: 'auto', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    {renderContent()}
-                  </div>
-                </WindowFrame>
-              )
-            })}
+                  return (
+                    <WindowFrame
+                      key={win.id}
+                      id={win.id}
+                      title={win.title}
+                      zIndex={win.zIndex}
+                      isOpen={win.isOpen}
+                      isMinimized={win.isMinimized}
+                      isMaximized={win.isMaximized}
+                      x={win.x}
+                      y={win.y}
+                      width={win.width}
+                      height={win.height}
+                      spawnOrigin={win.spawnOrigin}
+                    >
+                      <div style={{ pointerEvents: 'auto', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {renderContent()}
+                      </div>
+                    </WindowFrame>
+                  )
+                })}
+            </AnimatePresence>
           </div>
         </div>
       )}
+
+      {/* Neko cat — follows cursor, pointer-events:none, skips if reduced-motion */}
+      {bootDone && <NekoKat />}
     </>
   )
 }

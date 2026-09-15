@@ -15,6 +15,7 @@ export interface WindowInstance {
   width: number
   height: number
   icon?: string
+  spawnOrigin?: { x: number; y: number }
 }
 
 interface WindowContextType {
@@ -173,6 +174,16 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   const [maxZIndex, setMaxZIndex] = useState(2)
 
   const isInternalNavigationRef = useRef(false)
+  const lastClickOriginRef = useRef<{ x: number; y: number } | null>(null)
+
+  // Global capture-phase click listener to track exact click coordinates for window spawn origins
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      lastClickOriginRef.current = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('click', handleGlobalClick, true)
+    return () => window.removeEventListener('click', handleGlobalClick, true)
+  }, [])
 
   // Sync open window state with current route pathname (direct link, back/forward)
   useEffect(() => {
@@ -207,8 +218,10 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
     setMaxZIndex(nextZ)
     setActiveWindowId(id)
 
+    const currentOrigin = lastClickOriginRef.current ? { ...lastClickOriginRef.current } : undefined
+
     setWindows(prev =>
-      prev.map(w => (w.id === id ? { ...w, isOpen: true, isMinimized: false, zIndex: nextZ } : w))
+      prev.map(w => (w.id === id ? { ...w, isOpen: true, isMinimized: false, zIndex: nextZ, spawnOrigin: currentOrigin || w.spawnOrigin } : w))
     )
 
     if (location.pathname !== targetPath) {
