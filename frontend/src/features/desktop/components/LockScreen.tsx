@@ -6,7 +6,8 @@
  *   - Large live clock + full date display.
  *   - PushkarOS animated pixel wordmark (reusing font-pixel & gradient treatment from BootScreen).
  *   - DesktopBackground skyline backdrop + dark glassmorphic blur overlay.
- *   - Instant skip/dismiss on any user interaction (click, key, touch) without disturbing open windows.
+ *   - Keypress-only unlock: ONLY pressing a keyboard key wakes up the desktop.
+ *   - Zero state loss: All open windows, terminal sessions, and dock states remain 100% intact.
  */
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
@@ -44,36 +45,43 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
     return () => clearInterval(timer)
   }, [])
 
-  // Idle timer detection & activity reset
+  // Idle timer detection & keypress-only wake up
   useEffect(() => {
     let timeoutId: number
 
-    const resetIdleTimer = () => {
+    const handleActivity = (e: Event) => {
+      // If locked, ONLY keydown unlocks the screen!
+      if (isLocked) {
+        if (e.type === 'keydown') {
+          setIsLocked(false)
+          window.clearTimeout(timeoutId)
+          timeoutId = window.setTimeout(() => {
+            setIsLocked(true)
+          }, idleTimeoutMs)
+        }
+        return
+      }
+
+      // If unlocked, any activity resets the idle countdown
       window.clearTimeout(timeoutId)
-      // If locked, any interaction unlocks the screen
-      setIsLocked(prevLocked => {
-        if (prevLocked) return false
-        return false
-      })
       timeoutId = window.setTimeout(() => {
         setIsLocked(true)
       }, idleTimeoutMs)
     }
 
-    // Set initial timeout
+    // Initial timer setup
     timeoutId = window.setTimeout(() => {
       setIsLocked(true)
     }, idleTimeoutMs)
 
-    // Listen for any user activity
     const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'wheel']
-    events.forEach(evt => window.addEventListener(evt, resetIdleTimer, { passive: true }))
+    events.forEach(evt => window.addEventListener(evt, handleActivity, { passive: true }))
 
     return () => {
       window.clearTimeout(timeoutId)
-      events.forEach(evt => window.removeEventListener(evt, resetIdleTimer))
+      events.forEach(evt => window.removeEventListener(evt, handleActivity))
     }
-  }, [idleTimeoutMs])
+  }, [idleTimeoutMs, isLocked])
 
   // Format time and date
   const formattedTime = useMemo(() => {
@@ -84,10 +92,6 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
     return time.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   }, [time])
 
-  const handleUnlock = () => {
-    setIsLocked(false)
-  }
-
   return (
     <AnimatePresence>
       {isLocked && (
@@ -97,8 +101,6 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          onClick={handleUnlock}
-          onPointerDown={handleUnlock}
           style={{
             position: 'fixed',
             inset: 0,
@@ -108,7 +110,6 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
-            cursor: 'pointer',
             userSelect: 'none',
           }}
         >
@@ -190,7 +191,7 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
               {formattedDate}
             </div>
 
-            {/* Interactive Unlock Prompt */}
+            {/* Keypress-only Wake Up Prompt */}
             <motion.div
               animate={{ opacity: [0.4, 0.9, 0.4] }}
               transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
@@ -205,7 +206,7 @@ export default function LockScreen({ idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS }: 
                 borderRadius: 20,
               }}
             >
-              Press any key, click, or tap to unlock
+              ⌨️ Press any key to wake up
             </motion.div>
           </div>
         </motion.div>

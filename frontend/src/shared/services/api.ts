@@ -279,13 +279,40 @@ export const portfolioApi = {
     }
   },
 
-  // GitHub stats — prs may be null when the search API fails.
-  getGithubStats: async (): Promise<{ repos: number; stars: number; streak: string; prs: number | null }> => {
+  // GitHub stats — repos/stars/prs come from the live GitHub API; streak is parsed from the
+  // public contribution calendar. Cached in localStorage for 1 hour to avoid hammering the backend.
+  // streak may be null when the parse fails — the widget will display '—'.
+  getGithubStats: async (): Promise<{ repos: number; stars: number; streak: string | null; prs: number | null }> => {
+    const CACHE_KEY = 'pushkaros_github_stats_cache';
+    const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+    // Serve from cache if still fresh
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        const { data, expiresAt } = JSON.parse(raw);
+        if (Date.now() < expiresAt) return data;
+      }
+    } catch { /* corrupt cache — ignore */ }
+
     try {
       const data = await request('/api/github');
+      // Persist fresh result
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, expiresAt: Date.now() + CACHE_TTL_MS }));
+      } catch { /* storage full — non-fatal */ }
       return data;
     } catch (err) {
-      return { repos: 42, stars: 180, streak: '28d', prs: null };
+      // Serve stale cache rather than placeholder zeros
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const { data } = JSON.parse(raw);
+          return data;
+        }
+      } catch { /* ignore */ }
+      // Hard fallback — better than zeros
+      return { repos: 42, stars: 180, streak: null, prs: null };
     }
   },
 

@@ -179,20 +179,23 @@ function LearningProgressBar({ pct, color }: { pct: number; color: string }) {
 }
 
 function GitHubStats() {
-  // prs is nullable — backend no longer fakes 76 on failure
-  const [stats, setStats] = useState<{ repos: number; stars: number; streak: string; prs: number | null }>({
-    repos: 42, stars: 180, streak: '28d', prs: null
+  // prs and streak are nullable — display '—' when unavailable
+  const [stats, setStats] = useState<{ repos: number; stars: number; streak: string | null; prs: number | null }>({
+    repos: 0, stars: 0, streak: null, prs: null
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    portfolioApi.getGithubStats().then(setStats).catch(console.error)
+    portfolioApi.getGithubStats()
+      .then(data => { setStats(data); setLoading(false); })
+      .catch(err => { console.error(err); setLoading(false); })
   }, [])
 
   const displayStats = [
     { label: 'Repos', value: stats.repos.toString(), color: 'var(--blue-primary)' },
     { label: 'Stars', value: stats.stars.toString(), color: 'var(--amber)' },
-    { label: 'Streak', value: stats.streak, color: 'var(--mint)' },
-    // Render '—' when prs is null (GitHub search API failed) rather than showing a stale/fake number
+    // streak and prs render '—' when null (backend parse/API failure)
+    { label: 'Streak', value: stats.streak !== null ? stats.streak : '—', color: 'var(--mint)' },
     { label: 'PRs', value: stats.prs !== null ? stats.prs.toString() : '—', color: 'var(--purple)' },
   ]
   return (
@@ -204,8 +207,10 @@ function GitHubStats() {
             border: '1px solid var(--border-light)',
             borderRadius: 6, padding: '8px 10px',
           }}>
-            <div style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 700, color: s.color, lineHeight: 1 }}>
-              <CountUpNumber value={s.value} />
+            <div style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 700, color: loading ? 'var(--text-muted)' : s.color, lineHeight: 1, transition: 'color 0.4s' }}>
+              {loading
+                ? <span style={{ opacity: 0.35, animation: 'pulse 1.4s ease-in-out infinite', display: 'inline-block' }}>···</span>
+                : <CountUpNumber key={`${s.label}-${s.value}`} value={s.value} />}
             </div>
             <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 4 }}>{s.label}</div>
           </div>

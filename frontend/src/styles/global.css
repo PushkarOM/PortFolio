@@ -626,3 +626,8 @@ section {
 .widget-slide-in {
   animation: widgetSlideIn 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
