@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { soundService } from '../../../shared/services/soundService'
 
 interface DockItem {
   id: string
@@ -172,6 +173,7 @@ export default function BottomDock({ onOpenTerminal, onOpenProjects, onOpenConta
                 onMouseEnter={() => !isMobile && setHoveredIdx(i)}
                 onMouseLeave={() => !isMobile && setHoveredIdx(null)}
                 onClick={() => {
+                  soundService.playClick()
                   setBouncingId(item.id)
                   setTimeout(() => setBouncingId(null), 450)
                   if (item.action) item.action()
