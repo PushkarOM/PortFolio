@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import DesktopBackground from '../features/desktop/components/DesktopBackground'
 import BootScreen from '../features/desktop/components/BootScreen'
@@ -75,13 +75,14 @@ export default function App() {
   // E8: stable callback reference — prevents BootScreen from re-rendering every render cycle
   const handleBootComplete = useCallback(() => setBootDone(true), [])
 
-  const handleThemeChange = (t: string) => {
+  const handleThemeChange = useCallback((t: string) => {
     if (['aurora', 'midnight', 'retro', 'matrix'].includes(t)) {
       setTheme(t as Theme)
     }
-  }
+  }, [])
 
-  const getActiveNavSection = () => {
+  // Stable derived value — avoids re-computing on every render
+  const activeNavSection = useMemo(() => {
     if (!activeWindowId) return 'Home'
     switch (activeWindowId) {
       case 'home': return 'Home'
@@ -92,9 +93,9 @@ export default function App() {
       case 'contact': return 'Contact'
       default: return 'Home'
     }
-  }
+  }, [activeWindowId])
 
-  const handleNavClick = (section: string) => {
+  const handleNavClick = useCallback((section: string) => {
     const sectionToWindowId: Record<string, WindowId> = {
       'Home': 'home',
       'Projects': 'projects',
@@ -104,15 +105,24 @@ export default function App() {
       'Contact': 'contact',
     }
     const winId = sectionToWindowId[section]
-    if (winId) {
-      openWindow(winId)
-    }
-  }
+    if (winId) openWindow(winId)
+  }, [openWindow])
 
-  // F4: Derive open window IDs dynamically so BottomDock active dots reflect real state
-  const openWindowIds = new Set(
-    windows.filter(w => w.isOpen && !w.isMinimized).map(w => w.id)
+  // F4: Memoized Set — stable reference so BottomDock doesn't re-render on unrelated context updates
+  const openWindowIds = useMemo(
+    () => new Set(windows.filter(w => w.isOpen && !w.isMinimized).map(w => w.id)),
+    [windows]
   )
+
+  // Stable callback for DesktopIcons — avoids recreating on every App render
+  const handleDesktopIconOpen = useCallback((id: string) => {
+    const mappedId = id.toLowerCase()
+    if (mappedId === 'trash') {
+      showToast('🗑️ Trash is empty!')
+    } else {
+      openWindow(mappedId as WindowId)
+    }
+  }, [openWindow])
 
   return (
     <>
@@ -138,10 +148,10 @@ export default function App() {
 
           {/* Top bar */}
           <TopBar
-            activeSection={getActiveNavSection()}
+            activeSection={activeNavSection}
             onSectionChange={handleNavClick}
             theme={theme}
-            onThemeChange={setTheme}
+            onThemeChange={handleThemeChange}
           />
 
           {/* Main workspace */}
@@ -155,17 +165,7 @@ export default function App() {
             {/* Left: Desktop Icons */}
             {!isMobile && (
               <>
-                <DesktopIcons
-                  onOpen={(id) => {
-                    const mappedId = id.toLowerCase()
-                    if (mappedId === 'trash') {
-                      // F2: replace browser alert() with in-app toast
-                      showToast('🗑️ Trash is empty!')
-                    } else {
-                      openWindow(mappedId as WindowId)
-                    }
-                  }}
-                />
+                <DesktopIcons onOpen={handleDesktopIconOpen} />
                 {/* Divider */}
                 <div style={{ width: 1, background: 'var(--border-light)', opacity: 0.4, flexShrink: 0 }} />
               </>

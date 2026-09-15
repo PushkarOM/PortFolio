@@ -267,11 +267,12 @@ function SkylineLayer({
         <rect key={i} x={bx} y={200 - bh} width={bw} height={bh} fill={fills[i % 3]} />
       ))}
 
-      {dots.map((d, i) =>
-        litSet.has(i) ? (
+      {dots
+        .map((d, i) => ({ d, i }))
+        .filter(({ i }) => litSet.has(i))
+        .map(({ d, i }) => (
           <rect key={i} x={d.x} y={d.y} width={6} height={6} fill={windowFill} opacity={0.8} />
-        ) : null
-      )}
+        ))}
 
       <rect x={0} y={198} width={1000} height={4} fill={fills[0]} />
     </svg>
@@ -523,7 +524,7 @@ export default function DesktopBackground() {
       {/* Layer 1a — far skyline (slower parallax) */}
       <div
         ref={farWallRef}
-        style={{ position: 'absolute', inset: 0, willChange: 'transform', transition: 'transform 0.15s ease-out' }}
+        style={{ position: 'absolute', inset: 0, willChange: 'transform' }}
       >
         <SkylineLayer
           buildings={FAR_BUILDINGS}
@@ -541,7 +542,7 @@ export default function DesktopBackground() {
       {/* Layer 1b — near skyline (faster parallax) */}
       <div
         ref={nearWallRef}
-        style={{ position: 'absolute', inset: 0, willChange: 'transform', transition: 'transform 0.10s ease-out' }}
+        style={{ position: 'absolute', inset: 0, willChange: 'transform' }}
       >
         <SkylineLayer
           buildings={NEAR_BUILDINGS}
@@ -559,7 +560,7 @@ export default function DesktopBackground() {
       {/* Layer 2 — pixel-art doodle sprites */}
       <div
         ref={doodleRef}
-        style={{ position: 'absolute', inset: 0, willChange: 'transform', transition: 'transform 0.20s ease-out' }}
+        style={{ position: 'absolute', inset: 0, willChange: 'transform' }}
       >
         <PixelDoodles theme={theme} />
       </div>

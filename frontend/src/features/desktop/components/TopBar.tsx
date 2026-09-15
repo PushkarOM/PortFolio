@@ -364,7 +364,7 @@ export default function TopBar({ activeSection, onSectionChange, theme, onThemeC
                   padding: '3px 10px',
                   borderRadius: 5,
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  transition: 'background 0.15s, color 0.15s',
                   display: 'flex', alignItems: 'center', gap: 5,
                 }}
                 onMouseEnter={e => {

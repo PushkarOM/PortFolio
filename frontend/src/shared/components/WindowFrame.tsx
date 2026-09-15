@@ -84,7 +84,7 @@ export default function WindowFrame({
 
     e.preventDefault()
     e.stopPropagation()
-    focusWindow(id)
+    if (!isFocused) focusWindow(id)
 
     isDraggingRef.current = true
     const startX = e.clientX
@@ -119,7 +119,7 @@ export default function WindowFrame({
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    focusWindow(id)
+    if (!isFocused) focusWindow(id)
 
     const startWidth = localWidth
     const startHeight = localHeight
@@ -177,7 +177,7 @@ export default function WindowFrame({
         pointerEvents: 'auto',
         transformOrigin: getTransformOrigin(),
       }}
-      onMouseDown={() => focusWindow(id)}
+      onMouseDown={() => { if (!isFocused) focusWindow(id) }}
       className={`window ${isFocused ? 'glow-blue' : ''}`}
     >
       <PixelDissolveOverlay />
